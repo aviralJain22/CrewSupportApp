@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "937451639115",
+    "firebase_url": "https://crew-support-b98a2-default-rtdb.firebaseio.com",
+    "project_id": "crew-support-b98a2",
+    "storage_bucket": "crew-support-b98a2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:937451639115:android:57b93968c6b4ef75dd58ce",
+        "android_client_info": {
+          "package_name": "com.crew_support.crew_support"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDN7jV4N6mHvLlgR4f0wKFv5XBX9M1Tblk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:937451639115:android:25f4c94fcfa14ededd58ce",
+        "android_client_info": {
+          "package_name": "com.example.crew_support"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDN7jV4N6mHvLlgR4f0wKFv5XBX9M1Tblk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
