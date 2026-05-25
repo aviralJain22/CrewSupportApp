@@ -1,4 +1,4 @@
-import 'package:crew_support/utils/AppColor.dart';
+import 'package:crew_support/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
@@ -15,10 +15,7 @@ class AppRoot extends StatelessWidget {
         return GetMaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Crew Support',
-          theme: ThemeData(
-                colorScheme: ColorScheme.fromSwatch()
-                    .copyWith(secondary: AppColor.secondaryColor1, brightness: Brightness.dark),
-                    ),
+          theme: AppThemeData.dark(),
           // 👇 this line makes all controllers from AppBindings available
           initialBinding: AppBindings(),
           initialRoute: AppRoutes.splash,
