@@ -1,6 +1,4 @@
 import 'package:crew_support/app/routes.dart';
-import 'package:crew_support/features/connection/connection_controller.dart';
-import 'package:crew_support/features/connection/connection_screen.dart';
 import 'package:crew_support/features/dashboard_controller.dart';
 import 'package:crew_support/features/message/chat_service.dart';
 import 'package:crew_support/features/message/message_controller.dart';
@@ -23,7 +21,8 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:sizer/sizer.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:crew_support/features/home/home_controller.dart';
-import 'package:crew_support/features/home/premium_home_screen.dart';
+import 'package:crew_support/features/dashboard/premium_dashboard_screen.dart';
+import 'package:crew_support/features/crew_search/crew_search_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -157,7 +156,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                         : Image.network(
                                             url,
                                             fit: BoxFit.cover,
-                                            errorBuilder: (_, __, ___) => CircleAvatar(
+                                            errorBuilder: (_, err, st) => CircleAvatar(
                                               backgroundColor: AppColor.bgColor1,
                                               child: Icon(Icons.account_circle, color: AppColor.secondaryColor1, size: 60),
                                             ),
@@ -173,7 +172,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                         Container(
                           width: 45.w,
                           decoration: BoxDecoration(
-                            color: AppColor.secondaryColor1.withOpacity(0.2),
+                            color: AppColor.secondaryColor1.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Center(
@@ -225,7 +224,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                             shape: BoxShape.circle,
                                             boxShadow: [
                                               BoxShadow(
-                                                color: AppColor.red.withOpacity(_warningGlowAnimation.value),
+                                                color: AppColor.red.withValues(alpha: _warningGlowAnimation.value),
                                                 blurRadius: 10,
                                                 spreadRadius: 1.5,
                                               ),
@@ -281,8 +280,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                               child: SvgPicture.asset(
                                 'assets/Heart Outline.svg',
                                 fit: BoxFit.fill,
-                                color: AppColor.secondaryColor1,
-                                cacheColorFilter: false,
+                                colorFilter: ColorFilter.mode(AppColor.secondaryColor1, BlendMode.srcIn),
                               ),
                             ),
                           );
@@ -361,9 +359,9 @@ class _DashboardScreenState extends State<DashboardScreen>
 
                   final idx = controller.currentPage.value;
 
-                  // Home tab
+                  // Home tab — trip management dashboard
                   if (idx == 0) {
-                    return const PremiumHomeScreen();
+                    return const PremiumDashboardScreen();
                   }
                   // Profile tab
                   else if (idx == 1) {
@@ -404,16 +402,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                     // return const ProfilePilotScreen();
                     // return const ProfileFlightAttendantScreen();
                   }
-                  // Connection tab
+                  // Network tab — crew search
                   else if (idx == 2) {
-                    if (!Get.isRegistered<ConnectionController>()) {
-                      Get.put(ConnectionController());
-                    } else {
-                      // Refresh connections whenever the user switches back
-                      // to the Connection tab and the controller already exists.
-                      Get.find<ConnectionController>().getData();
-                    }
-                    return const ConnectionScreen();
+                    return const CrewSearchScreen();
                   }
                   // Notification tab
                   else if (idx == 3) {
@@ -597,7 +588,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         child: photoUrl.isEmpty
             ? Icon(Icons.person, size: 16, color: selected ? _navSelected : _navUnselected)
             : Image.network(photoUrl, fit: BoxFit.cover,
-                errorBuilder: (_, __, e) =>
+                errorBuilder: (_, err, e) =>
                     Icon(Icons.person, size: 16, color: selected ? _navSelected : _navUnselected)),
       ),
     );
@@ -680,7 +671,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       child: ListView.separated(
         padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
         itemCount: results.length,
-        separatorBuilder: (_, __) => SizedBox(height: 0.h),
+        separatorBuilder: (_, idx) => SizedBox(height: 0.h),
         itemBuilder: (context, index) {
           final row = results[index];
 
@@ -835,8 +826,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                     child: SvgPicture.asset(
                       'assets/message.svg',
                       height: 3.0.h,
-                      color: AppColor.secondaryColor2,
-                      cacheColorFilter: false,
+                      colorFilter: ColorFilter.mode(AppColor.secondaryColor2, BlendMode.srcIn),
                     ),
                   ),
                 ),

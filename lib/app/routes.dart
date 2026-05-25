@@ -1,4 +1,8 @@
 import 'package:crew_support/features/auth/forgot_controller.dart';
+import 'package:crew_support/features/crew_search/crew_search_screen.dart';
+import 'package:crew_support/features/dashboard/premium_dashboard_screen.dart';
+import 'package:crew_support/features/trip_flow/trip_creation_screen.dart';
+import 'package:crew_support/features/trip_flow/premium_availability_screen.dart';
 import 'package:crew_support/features/auth/login_controller.dart';
 import 'package:crew_support/features/auth/otp_controller.dart';
 import 'package:crew_support/features/auth/otp_screen.dart';
@@ -83,6 +87,18 @@ import 'package:crew_support/features/trip/select_profile_screen.dart';
 import 'package:crew_support/features/webview_stack_controller.dart';
 import 'package:crew_support/features/webview_stack_screen.dart';
 import 'package:get/get.dart';
+import '../screens/auth/login_screen.dart' as new_auth;
+import '../screens/auth/otp_screen.dart' as new_otp;
+import '../screens/profile/owner_profile_screen.dart';
+import '../screens/profile/pilot_profile_screen.dart';
+import '../screens/profile/fa_profile_screen.dart';
+import '../screens/profile/instructor_profile_screen.dart';
+import '../screens/profile/view_profile_screen.dart';
+import '../screens/chat/message_list_screen.dart';
+import '../screens/chat/chat_screen.dart' as new_chat;
+import '../screens/social/connections_screen.dart';
+import '../screens/notifications/notification_screen.dart' as new_notif;
+import '../screens/favourites/favourites_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/welcome_screen.dart';
 import '../features/auth/register_screen.dart';
@@ -139,6 +155,25 @@ class AppRoutes {
   static const addBankDetail = '/addBankDetail';
   static const rateTrip = '/rateTrip';
   static const favorite = '/favorite';
+  static const premiumDashboard = '/premium-dashboard';
+  static const crewSearch = '/crew-search';
+  static const tripCreation = '/trip-creation';
+  static const premiumAvailability = '/premium-availability';
+  // Sprint profile screens
+  static const pilotProfileNew = '/pilot-profile-new';
+  static const ownerProfileNew = '/owner-profile-new';
+  static const faProfile = '/fa-profile';
+  static const instructorProfile = '/instructor-profile';
+  static const viewProfile = '/view-profile';
+  // Sprint messaging screens
+  static const messageList = '/message-list';
+  static const chatNew = '/chat-new';
+  static const connectionsNew = '/connections-new';
+  static const notificationsNew = '/notifications-new';
+  static const favourites = '/favourites';
+  // Sprint auth screens
+  static const loginNew = '/login-new';
+  static const otpNew = '/otp-new';
 
   static final pages = <GetPage>[
     GetPage(name: splash, page: () => const SplashScreen()),
@@ -411,6 +446,77 @@ class AppRoutes {
       binding: BindingsBuilder(() {
         Get.create<FavoriteController>(() => FavoriteController());
       }),
+    ),
+    GetPage(
+      name: AppRoutes.premiumDashboard,
+      page: () => const PremiumDashboardScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.crewSearch,
+      page: () => const CrewSearchScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.tripCreation,
+      page: () => const TripCreationScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.premiumAvailability,
+      page: () => const PremiumAvailabilityScreen(),
+    ),
+    // Sprint profile screens
+    GetPage(
+      name: AppRoutes.pilotProfileNew,
+      page: () => const PilotProfileScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.ownerProfileNew,
+      page: () => const OwnerProfileScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.faProfile,
+      page: () => const FaProfileScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.instructorProfile,
+      page: () => const InstructorProfileScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.viewProfile,
+      page: () => const ViewProfileScreen(),
+    ),
+    // Sprint messaging screens
+    GetPage(
+      name: AppRoutes.messageList,
+      page: () => const MessageListScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.chatNew,
+      page: () => const new_chat.ChatScreen(
+        contactId: '',
+        contactName: '',
+        contactRole: '',
+      ),
+    ),
+    GetPage(
+      name: AppRoutes.connectionsNew,
+      page: () => const ConnectionsScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.notificationsNew,
+      page: () => const new_notif.NotificationScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.favourites,
+      page: () => const FavouritesScreen(),
+    ),
+    // Sprint auth screens
+    GetPage(
+      name: AppRoutes.loginNew,
+      page: () => const new_auth.LoginScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.otpNew,
+      page: () => const new_otp.OtpScreen(),
     ),
   ];
 }
