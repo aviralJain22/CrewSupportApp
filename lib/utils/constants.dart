@@ -1,5 +1,5 @@
 
-import 'package:crew_support/database/airport_code_model.dart';
+import 'package:crew_support/database/airport_platform.dart';
 import 'package:crew_support/model/loginswitchModel.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';

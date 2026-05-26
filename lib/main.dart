@@ -130,17 +130,19 @@ Future<void> main() async {
 
   await dotenv.load(fileName: '.env.dev'); // swap for .env.prod via flavors later
 
-  // Uses native config files (google-services.json / plist)
-  await Firebase.initializeApp();
+  if (!kIsWeb) {
+    // Uses native config files (google-services.json / plist)
+    await Firebase.initializeApp();
 
-  // Flutter framework errors -> Crashlytics
-  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    // Flutter framework errors -> Crashlytics
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 
-  // Async/Dart errors -> Crashlytics
-  PlatformDispatcher.instance.onError = (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-    return true;
-  };
+    // Async/Dart errors -> Crashlytics
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
+  }
 
   // Initialize parse
   await Parse().initialize(Env.parseAppId, Env.parseServerUrl,
@@ -207,59 +209,61 @@ Future<void> main() async {
 
   await _logBackgroundFetchDebugStatusOnLaunch();
 
-  debugPrint('[Location][background] Configuring BackgroundFetch...');
-  final status = await BackgroundFetch.configure(
-    BackgroundFetchConfig(
-      minimumFetchInterval: 15,
-      stopOnTerminate: false,
-      enableHeadless: true,
-      startOnBoot: true,
-      requiresBatteryNotLow: false,
-      requiresCharging: false,
-      requiresStorageNotLow: false,
-      requiredNetworkType: NetworkType.ANY,
-    ),
-    (String taskId) async {
-      try {
-        debugPrint('[Location][background] BackgroundFetch event received: $taskId');
-        await _recordBackgroundFetchEvent(
-          prefsKey: _bgFetchLastEventAtKey,
-          logLabel: 'BackgroundFetch event',
-        );
-
-        final bool didRun = await LocationSyncService.runBestEffortSyncIfEnabled(
-          minDistanceM: 300,
-          minInterval: const Duration(minutes: 5),
-        );
-
-        if (!didRun) {
+  if (!kIsWeb) {
+    debugPrint('[Location][background] Configuring BackgroundFetch...');
+    final status = await BackgroundFetch.configure(
+      BackgroundFetchConfig(
+        minimumFetchInterval: 15,
+        stopOnTerminate: false,
+        enableHeadless: true,
+        startOnBoot: true,
+        requiresBatteryNotLow: false,
+        requiresCharging: false,
+        requiresStorageNotLow: false,
+        requiredNetworkType: NetworkType.ANY,
+      ),
+      (String taskId) async {
+        try {
+          debugPrint('[Location][background] BackgroundFetch event received: $taskId');
           await _recordBackgroundFetchEvent(
-            prefsKey: _bgFetchLastSkipAtKey,
-            logLabel: 'BackgroundFetch skip',
+            prefsKey: _bgFetchLastEventAtKey,
+            logLabel: 'BackgroundFetch event',
           );
-          debugPrint('[Location][background] BackgroundFetch ran but location sync was skipped (disabled / throttled / no permission / no movement).');
-        } else {
-          await _recordBackgroundFetchEvent(
-            prefsKey: _bgFetchLastSuccessAtKey,
-            logLabel: 'successful background location sync',
+
+          final bool didRun = await LocationSyncService.runBestEffortSyncIfEnabled(
+            minDistanceM: 300,
+            minInterval: const Duration(minutes: 5),
           );
-          debugPrint('[Location][background] BackgroundFetch completed and location sync executed.');
+
+          if (!didRun) {
+            await _recordBackgroundFetchEvent(
+              prefsKey: _bgFetchLastSkipAtKey,
+              logLabel: 'BackgroundFetch skip',
+            );
+            debugPrint('[Location][background] BackgroundFetch ran but location sync was skipped (disabled / throttled / no permission / no movement).');
+          } else {
+            await _recordBackgroundFetchEvent(
+              prefsKey: _bgFetchLastSuccessAtKey,
+              logLabel: 'successful background location sync',
+            );
+            debugPrint('[Location][background] BackgroundFetch completed and location sync executed.');
+          }
+        } catch (e) {
+          debugPrint('[Location][background] background fetch event error: $e');
+        } finally {
+          BackgroundFetch.finish(taskId);
         }
-      } catch (e) {
-        debugPrint('[Location][background] background fetch event error: $e');
-      } finally {
+      },
+      (String taskId) async {
+        debugPrint('[Location][background] BackgroundFetch timeout: $taskId (OS killed task before completion)');
         BackgroundFetch.finish(taskId);
-      }
-    },
-    (String taskId) async {
-      debugPrint('[Location][background] BackgroundFetch timeout: $taskId (OS killed task before completion)');
-      BackgroundFetch.finish(taskId);
-    },
-  );
-  debugPrint('[Location][background] BackgroundFetch configured with status: $status');
+      },
+    );
+    debugPrint('[Location][background] BackgroundFetch configured with status: $status');
 
-  BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
-  debugPrint('[Location][background] BackgroundFetch headless task registered.');
+    BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
+    debugPrint('[Location][background] BackgroundFetch headless task registered.');
+  }
 
   runApp(const AppRoot());
 }

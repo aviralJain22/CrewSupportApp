@@ -1,49 +1,40 @@
-import 'package:crew_support/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTextField extends StatefulWidget {
   const AppTextField({
     super.key,
     required this.label,
     this.controller,
-    this.focusNode,
     this.hint,
     this.errorText,
-    this.helperText,
-    this.onChanged,
-    this.onSubmitted,
-    this.keyboardType,
-    this.textInputAction,
     this.obscureText = false,
+    this.keyboardType,
+    this.onChanged,
+    this.onTap,
     this.readOnly = false,
-    this.enabled = true,
-    this.maxLines = 1,
-    this.maxLength,
-    this.prefixIcon,
     this.suffixIcon,
-    this.inputFormatters,
+    this.prefixIcon,
+    this.maxLines = 1,
+    this.textCapitalization = TextCapitalization.none,
+    this.focusNode,
     this.autofocus = false,
   });
 
   final String label;
   final TextEditingController? controller;
-  final FocusNode? focusNode;
   final String? hint;
   final String? errorText;
-  final String? helperText;
-  final ValueChanged<String>? onChanged;
-  final ValueChanged<String>? onSubmitted;
-  final TextInputType? keyboardType;
-  final TextInputAction? textInputAction;
   final bool obscureText;
+  final TextInputType? keyboardType;
+  final ValueChanged<String>? onChanged;
+  final VoidCallback? onTap;
   final bool readOnly;
-  final bool enabled;
-  final int maxLines;
-  final int? maxLength;
-  final Widget? prefixIcon;
   final Widget? suffixIcon;
-  final List<TextInputFormatter>? inputFormatters;
+  final Widget? prefixIcon;
+  final int maxLines;
+  final TextCapitalization textCapitalization;
+  final FocusNode? focusNode;
   final bool autofocus;
 
   @override
@@ -51,19 +42,18 @@ class AppTextField extends StatefulWidget {
 }
 
 class _AppTextFieldState extends State<AppTextField> {
+  static const _gold = Color(0xFFD4AF37);
+  static const _fieldBg = Color(0xFF1A1612);
+  static const _border = Color(0xFF2E2A22);
+
   late final FocusNode _focus;
-  bool _hasFocus = false;
-  bool _obscured = true;
+  bool _focused = false;
 
   @override
   void initState() {
     super.initState();
     _focus = widget.focusNode ?? FocusNode();
-    _focus.addListener(_onFocusChange);
-  }
-
-  void _onFocusChange() {
-    setState(() => _hasFocus = _focus.hasFocus);
+    _focus.addListener(() => setState(() => _focused = _focus.hasFocus));
   }
 
   @override
@@ -72,114 +62,78 @@ class _AppTextFieldState extends State<AppTextField> {
     super.dispose();
   }
 
-  Color get _borderColor {
-    if (widget.errorText != null) return AppColors.error;
-    if (_hasFocus) return AppColors.gold;
-    return AppColors.borderIdle;
-  }
-
   @override
   Widget build(BuildContext context) {
+    final hasError = widget.errorText != null && widget.errorText!.isNotEmpty;
+    final borderColor =
+        hasError ? const Color(0xFFB33A3A) : _focused ? _gold : _border;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Label row
         Text(
           widget.label.toUpperCase(),
-          style: AppTextStyles.label.copyWith(
-            color: widget.errorText != null
-                ? AppColors.error
-                : _hasFocus
-                    ? AppColors.gold
-                    : AppColors.textSecondary,
+          style: GoogleFonts.inter(
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            color: _focused ? _gold : Colors.white54,
+            letterSpacing: 1.2,
           ),
         ),
-        const SizedBox(height: AppSpacing.sm),
-
-        // Input
-        TextField(
-          controller: widget.controller,
-          focusNode: _focus,
-          onChanged: widget.onChanged,
-          onSubmitted: widget.onSubmitted,
-          keyboardType: widget.keyboardType,
-          textInputAction: widget.textInputAction,
-          obscureText: widget.obscureText && _obscured,
-          readOnly: widget.readOnly,
-          enabled: widget.enabled,
-          maxLines: widget.obscureText ? 1 : widget.maxLines,
-          maxLength: widget.maxLength,
-          inputFormatters: widget.inputFormatters,
-          autofocus: widget.autofocus,
-          style: AppTextStyles.body.copyWith(
-            color: widget.enabled
-                ? AppColors.textPrimary
-                : AppColors.textDisabled,
+        const SizedBox(height: 6),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          decoration: BoxDecoration(
+            color: _fieldBg,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: borderColor, width: 1.5),
           ),
-          cursorColor: AppColors.gold,
-          decoration: InputDecoration(
-            hintText: widget.hint,
-            hintStyle: AppTextStyles.body.copyWith(color: AppColors.textDisabled),
-            filled: true,
-            fillColor: widget.enabled ? AppColors.inputFill : AppColors.bg1,
-            prefixIcon: widget.prefixIcon,
-            suffixIcon: widget.obscureText
-                ? GestureDetector(
-                    onTap: () => setState(() => _obscured = !_obscured),
-                    child: Icon(
-                      _obscured ? Icons.visibility_off : Icons.visibility,
-                      color: AppColors.textSecondary,
-                      size: 20,
-                    ),
-                  )
-                : widget.suffixIcon,
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.md),
-              borderSide: BorderSide(color: _borderColor),
+          child: TextField(
+            controller: widget.controller,
+            focusNode: _focus,
+            obscureText: widget.obscureText,
+            keyboardType: widget.keyboardType,
+            onChanged: widget.onChanged,
+            onTap: widget.onTap,
+            readOnly: widget.readOnly,
+            maxLines: widget.maxLines,
+            textCapitalization: widget.textCapitalization,
+            autofocus: widget.autofocus,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              color: Colors.white,
+              fontWeight: FontWeight.w400,
             ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.md),
-              borderSide: BorderSide(color: _borderColor, width: 1.5),
+            cursorColor: _gold,
+            decoration: InputDecoration(
+              hintText: widget.hint,
+              hintStyle: GoogleFonts.inter(
+                fontSize: 14,
+                color: Colors.white30,
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 14,
+              ),
+              border: InputBorder.none,
+              prefixIcon: widget.prefixIcon,
+              suffixIcon: widget.suffixIcon,
             ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.md),
-              borderSide: const BorderSide(color: AppColors.error),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.md),
-              borderSide: const BorderSide(color: AppColors.error, width: 1.5),
-            ),
-            disabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.md),
-              borderSide: const BorderSide(color: AppColors.borderIdle),
-            ),
-            border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.lg,
-              vertical: AppSpacing.md,
-            ),
-            counterText: '',
           ),
         ),
-
-        // Helper / error text
-        if (widget.errorText != null || widget.helperText != null) ...[
-          const SizedBox(height: AppSpacing.xs),
+        if (hasError) ...[
+          const SizedBox(height: 5),
           Row(
             children: [
-              if (widget.errorText != null)
-                Icon(Icons.error_outline, size: 12, color: AppColors.error),
-              if (widget.errorText != null)
-                const SizedBox(width: AppSpacing.xs),
-              Flexible(
-                child: Text(
-                  widget.errorText ?? widget.helperText!,
-                  style: AppTextStyles.caption.copyWith(
-                    color: widget.errorText != null
-                        ? AppColors.error
-                        : AppColors.textSecondary,
-                  ),
+              const Icon(Icons.error_outline,
+                  size: 13, color: Color(0xFFB33A3A)),
+              const SizedBox(width: 4),
+              Text(
+                widget.errorText!,
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  color: const Color(0xFFB33A3A),
                 ),
               ),
             ],

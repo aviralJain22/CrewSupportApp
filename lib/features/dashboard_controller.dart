@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io' show Platform;
 import 'package:background_fetch/background_fetch.dart';
+import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform;
 import 'package:crew_support/app/routes.dart';
-import 'package:crew_support/database/airport_code_model.dart';
+import 'package:crew_support/database/airport_platform.dart';
 import 'package:crew_support/features/trip/trip_draft_flow_service.dart';
 import 'package:crew_support/model/profile_summary.dart';
 import 'package:crew_support/model/trip_model.dart';
@@ -606,7 +606,7 @@ class DashboardController extends GetxController with WidgetsBindingObserver {
       }
 
       // 3) Background refresh / fetch warning is iOS-specific.
-      if (Platform.isIOS) {
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
         final int bgStatus = await BackgroundFetch.status;
         if (bgStatus == BackgroundFetch.STATUS_DENIED ||
             bgStatus == BackgroundFetch.STATUS_RESTRICTED) {
@@ -663,7 +663,7 @@ class DashboardController extends GetxController with WidgetsBindingObserver {
         return;
       }
 
-      if (Platform.isIOS) {
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
         final int bgStatus = await BackgroundFetch.status;
         if (bgStatus == BackgroundFetch.STATUS_DENIED ||
             bgStatus == BackgroundFetch.STATUS_RESTRICTED) {
@@ -688,7 +688,7 @@ class DashboardController extends GetxController with WidgetsBindingObserver {
 
     String message;
 
-    if (Platform.isAndroid) {
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
       message =
           'Enable full location access to improve nearby trip matching. Crew Support needs Location set to "Allow all the time" for optimal functioning.';
 
@@ -737,7 +737,7 @@ class DashboardController extends GetxController with WidgetsBindingObserver {
   }
 
   void _showDeviceLocationOffDialog() {
-    final String message = Platform.isAndroid
+    final String message = (!kIsWeb && defaultTargetPlatform == TargetPlatform.android)
         ? 'Location is turned off on this device. Please turn it on to stay visible for nearby trip opportunities. Open device Location settings and enable Location.'
         : 'Location Services are turned off on this device. Please turn them on to stay visible for nearby trip opportunities. Open Settings, then go to Privacy & Security > Location Services and turn them on.';
 
@@ -761,7 +761,7 @@ class DashboardController extends GetxController with WidgetsBindingObserver {
   }
 
   void _showBackgroundFetchWarningDialog() {
-    final String message = Platform.isAndroid
+    final String message = (!kIsWeb && defaultTargetPlatform == TargetPlatform.android)
         ? 'Background location updates may be limited by this device. Please review battery optimization and background activity settings for Crew Support if location freshness is unreliable.'
         : 'Background App Refresh / Background Fetch is disabled for Crew Support. Please enable it in Settings to stay visible for nearby trip opportunities.';
 
@@ -819,7 +819,7 @@ class DashboardController extends GetxController with WidgetsBindingObserver {
     // Central refresh: profile header + trips
     await refreshForSelectedProfile();
 
-    registerNotification();
+    if (!kIsWeb) registerNotification();
 
     // final basicProfile = await fetchBasicProfileForCurrentRole();
     //   photoUrl.value = basicProfile?.photoPath ?? '';
@@ -892,13 +892,14 @@ class DashboardController extends GetxController with WidgetsBindingObserver {
     photoUrl.value = url;
   }
 
-  final FirebaseMessaging messaging = FirebaseMessaging.instance;
+  late final FirebaseMessaging? messaging = kIsWeb ? null : FirebaseMessaging.instance;
   Map<String, dynamic> payload = <String, dynamic>{};
 
   void registerNotification() async {
+    if (kIsWeb || messaging == null) return;
 
     // iOS permission prompt (safe on Android too; it will just no-op)
-    NotificationSettings settings = await messaging.requestPermission(
+    NotificationSettings settings = await messaging!.requestPermission(
       alert: true,
       badge: true,
       sound: true,
@@ -914,10 +915,10 @@ class DashboardController extends GetxController with WidgetsBindingObserver {
       return;
     }
 
-    await messaging.setForegroundNotificationPresentationOptions(
+    await messaging!.setForegroundNotificationPresentationOptions(
         alert: true, badge: true, sound: true);
 
-    messaging.getToken().then((value) async {
+    messaging!.getToken().then((value) async {
       if (value == null) return;
       try {
         final installation = await ParseInstallation.currentInstallation();
@@ -929,7 +930,7 @@ class DashboardController extends GetxController with WidgetsBindingObserver {
       }
     });
 
-    messaging.onTokenRefresh.listen((value) async {
+    messaging!.onTokenRefresh.listen((value) async {
       try {
         final installation = await ParseInstallation.currentInstallation();
         installation.deviceToken = value;

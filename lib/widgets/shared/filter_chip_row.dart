@@ -1,100 +1,67 @@
-import 'package:crew_support/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class FilterChipRow extends StatelessWidget {
   const FilterChipRow({
     super.key,
-    required this.options,
+    required this.items,
     required this.selected,
-    required this.onChanged,
+    required this.onTap,
     this.multiSelect = false,
-    this.padding = const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-    this.spacing = AppSpacing.sm,
+    this.padding,
   });
 
-  final List<String> options;
-
-  /// Set of currently selected option values.
-  final Set<String> selected;
-
-  /// Called with the full updated selection set after a tap.
-  final ValueChanged<Set<String>> onChanged;
-
-  /// When false only one chip can be active at a time (radio behaviour).
+  final List<String> items;
+  final List<String> selected;
+  final void Function(String item) onTap;
   final bool multiSelect;
+  final EdgeInsetsGeometry? padding;
 
-  final EdgeInsets padding;
-  final double spacing;
-
-  void _onTap(String value) {
-    final next = Set<String>.from(selected);
-    if (next.contains(value)) {
-      if (multiSelect) next.remove(value);
-      // single-select: don't allow deselecting the only selected item
-    } else {
-      if (!multiSelect) next.clear();
-      next.add(value);
-    }
-    onChanged(next);
-  }
+  static const _gold = Color(0xFFD4AF37);
+  static const _darkBg = Color(0xFF0C0A08);
+  static const _surface = Color(0xFF1E1A14);
+  static const _border = Color(0xFF2E2A22);
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      padding: padding,
+      padding: padding ?? const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
-        children: [
-          for (int i = 0; i < options.length; i++) ...[
-            if (i > 0) SizedBox(width: spacing),
-            _Chip(
-              label: options[i],
-              isSelected: selected.contains(options[i]),
-              onTap: () => _onTap(options[i]),
+        children: items.map((item) {
+          final isSelected = selected.contains(item);
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: GestureDetector(
+              onTap: () => onTap(item),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: isSelected ? _gold : _surface,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isSelected ? _gold : _border,
+                    width: 1,
+                  ),
+                ),
+                child: Text(
+                  item,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight:
+                        isSelected ? FontWeight.w600 : FontWeight.w400,
+                    color: isSelected ? _darkBg : Colors.white70,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ),
             ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _Chip extends StatelessWidget {
-  const _Chip({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg,
-          vertical: AppSpacing.sm,
-        ),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.gold : AppColors.bg2,
-          borderRadius: BorderRadius.circular(AppRadius.pill),
-          border: Border.all(
-            color: isSelected ? AppColors.gold : AppColors.borderIdle,
-          ),
-        ),
-        child: Text(
-          label,
-          style: AppTextStyles.bodySmall.copyWith(
-            color: isSelected ? AppColors.bg0 : AppColors.textSecondary,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-          ),
-        ),
+          );
+        }).toList(),
       ),
     );
   }

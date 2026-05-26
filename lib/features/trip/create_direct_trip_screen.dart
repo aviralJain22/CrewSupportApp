@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:crew_support/database/airport_code_model.dart';
+import 'package:crew_support/database/airport_platform.dart';
 import 'package:crew_support/features/trip/create_direct_trip_controller.dart';
 import 'package:crew_support/model/AircraftModel.dart';
 import 'package:crew_support/widgets/airport/airport_search_ui.dart';

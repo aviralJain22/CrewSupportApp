@@ -6,7 +6,7 @@ import 'package:crew_support/app/routes.dart';
 import 'package:crew_support/utils/Utility.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:crew_support/database/airport_code_model.dart';
+import 'package:crew_support/database/airport_platform.dart';
 
 
 import '../../model/pilot_availability_service.dart'; // showLoadingDialog, showMyDialog

@@ -1,7 +1,5 @@
-import 'package:crew_support/theme/app_theme.dart';
 import 'package:crew_support/utils/AppColor.dart';
 import 'package:crew_support/utils/sizer_v2_compat.dart';
-import 'package:crew_support/widgets/shared/app_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -17,7 +15,7 @@ class LoginScreen extends GetView<LoginController> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: AppColors.bg0,
+      backgroundColor: AppColor.bgColor2,
       // appBar: AppBar(
       //   backgroundColor: Colors.transparent,
       //   leading: Visibility(
@@ -35,7 +33,7 @@ class LoginScreen extends GetView<LoginController> {
           scrollDirection: Axis.vertical,
           child: 
               Container(
-            color: AppColors.bg1,
+            color: AppColor.bgColor1,
             height: size.height,
             width: size.width,
             child: Column(
@@ -43,7 +41,7 @@ class LoginScreen extends GetView<LoginController> {
               children: [
                 Container(
                   decoration: const BoxDecoration(
-                    color: AppColors.bg1,
+                    color: AppColor.bgColor1,
                   ),
                   height: size.height * 0.35,
                   width: size.width,
@@ -239,15 +237,26 @@ class LoginScreen extends GetView<LoginController> {
                       SizedBox(
                         height: 3.h,
                       ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 7.5.w),
-                        child: Obx(() => AppButton(
-                          label: 'Sign In',
-                          onPressed: controller.submit,
-                          loading: controller.loading.value,
-                          variant: AppButtonVariant.primary,
-                          expanded: true,
-                        )),
+                      SizedBox(
+                        width: 85.w,
+                        height: 5.0.h,
+                        child: Obx(() => MaterialButton(
+                              disabledColor: AppColor.btnColor2,
+                              disabledTextColor: AppColor.textColor1,
+                              textColor: AppColor.textColor1,
+                              color: AppColor.btnColor2,
+                              shape: RoundedRectangleBorder(
+                                  side: BorderSide(
+                                      color: AppColor.btnColor2, width: 0.6.w),
+                                  borderRadius: BorderRadius.circular(2.w)),
+                              onPressed: controller.loading.value ? null : controller.submit,
+                              child: controller.loading.value
+                                  ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                                  : Text(
+                                      "Sign In",
+                                      style: TextStyle(fontSize: 10.spV2, fontWeight: FontWeight.w700),
+                                    ),
+                            )),
                       ),
 
                       Padding(
@@ -260,13 +269,25 @@ class LoginScreen extends GetView<LoginController> {
                               fontWeight: FontWeight.w500),
                         ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 7.5.w),
-                        child: AppButton(
-                          label: 'Join Now',
+                      SizedBox(
+                        width: 85.w,
+                        height: 5.0.h,
+                        child: MaterialButton(
+                          disabledColor: AppColor.goldenColor2,
+                          disabledTextColor: AppColor.blackColor,
+                          textColor: AppColor.blackColor,
+                          color: AppColor.goldenColor2,
+                          shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                  color: AppColor.goldenColor2, width: 0.6.w),
+                              borderRadius: BorderRadius.circular(2.w)),
                           onPressed: () => Get.toNamed(AppRoutes.register),
-                          variant: AppButtonVariant.secondary,
-                          expanded: true,
+                          child: Text(
+                            "Join Now",
+                            style: TextStyle(
+                              fontSize: 10.spV2, /*fontWeight: FontWeight.w700*/
+                            ),
+                          ),
                         ),
                       ),
                       SizedBox(

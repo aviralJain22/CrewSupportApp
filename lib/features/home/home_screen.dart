@@ -4,10 +4,8 @@ import 'package:badges/badges.dart' as BadgeIcon;
 import 'package:crew_support/app/routes.dart';
 import 'package:crew_support/features/dashboard_controller.dart';
 import 'package:crew_support/helper/user_helper.dart';
-import 'package:crew_support/theme/app_theme.dart';
 import 'package:crew_support/utils/AppColor.dart';
 import 'package:crew_support/utils/membership_constants.dart';
-import 'package:crew_support/widgets/shared/app_button.dart';
 import 'package:crew_support/utils/sizer_v2_compat.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -248,15 +246,33 @@ return Stack(
         bottom: Platform.isAndroid ? safeBottom + 2.h : 2.h,
         left: 9.w,
         right: 9.w,
-        child: AppButton(
-          label: 'CREATE TRIP',
-          onPressed: () {
-            UserHelper().clearCurrent();
-            UserHelper().setIsCreateTripFlag(true);
-            Get.toNamed(AppRoutes.selectProfile);
-          },
-          variant: AppButtonVariant.primary,
-          expanded: true,
+        child: SizedBox(
+          width: 85.w,
+          child: MaterialButton(
+            disabledColor: AppColor.secondaryColor1,
+            disabledTextColor: AppColor.textColor2,
+            textColor: AppColor.textColor2,
+            color: AppColor.secondaryColor1,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(color: AppColor.secondaryColor1, width: 0.6.w),
+              borderRadius: BorderRadius.circular(2.w),
+            ),
+            onPressed: () {
+              // LEGACY:
+              UserHelper().clearCurrent();
+              UserHelper().setIsCreateTripFlag(true);
+              // Navigator.push(context, MaterialPageRoute(builder: (context) => SelectProfileScreen()));
+
+              // NEW PROJECT:
+              // Route to your SelectProfile screen when it's available.
+              // Replace with your actual route or widget:
+              Get.toNamed(AppRoutes.selectProfile);
+            },
+            child: Text(
+              'CREATE TRIP',
+              style: TextStyle(fontSize: 10.spV2),
+            ),
+          ),
         ),
       );
     }),

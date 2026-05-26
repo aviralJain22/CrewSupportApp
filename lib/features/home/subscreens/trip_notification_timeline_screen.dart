@@ -1,5 +1,5 @@
 import 'package:crew_support/app/routes.dart';
-import 'package:crew_support/database/airport_code_model.dart';
+import 'package:crew_support/database/airport_platform.dart';
 import 'package:crew_support/utils/AppColor.dart';
 import 'package:crew_support/utils/membership_constants.dart';
 import 'package:crew_support/utils/sizer_v2_compat.dart';

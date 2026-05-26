@@ -1,4 +1,4 @@
-import 'package:crew_support/database/airport_code_model.dart';
+import 'package:crew_support/database/airport_platform.dart';
 import 'package:crew_support/features/dashboard_controller.dart';
 import 'package:crew_support/model/owner_trip_detail_models.dart';
 import 'package:crew_support/model/trip_notification.dart';

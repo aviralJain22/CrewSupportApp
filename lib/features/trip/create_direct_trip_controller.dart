@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:crew_support/database/airport_code_model.dart';
+import 'package:crew_support/database/airport_platform.dart';
 import 'package:crew_support/features/dashboard_controller.dart';
 import 'package:crew_support/features/trip/trip_draft_flow_service.dart';
 import 'package:crew_support/features/trip/trip_draft_save_service.dart';

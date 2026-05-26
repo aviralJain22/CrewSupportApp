@@ -1,4 +1,4 @@
-import 'package:crew_support/database/airport_code_model.dart';
+import 'package:crew_support/database/airport_platform.dart';
 
 /// Shared formatter used anywhere we want to show an airport from AirportLite.
 ///

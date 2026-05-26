@@ -1,6 +1,4 @@
 import 'package:crew_support/app/routes.dart';
-import 'package:crew_support/features/connection/connection_controller.dart';
-import 'package:crew_support/features/connection/connection_screen.dart';
 import 'package:crew_support/features/dashboard_controller.dart';
 import 'package:crew_support/features/message/chat_service.dart';
 import 'package:crew_support/features/message/message_controller.dart';
@@ -22,8 +20,9 @@ import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:sizer/sizer.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:crew_support/features/home/home_screen.dart';
 import 'package:crew_support/features/home/home_controller.dart';
+import 'package:crew_support/features/dashboard/premium_dashboard_screen.dart';
+import 'package:crew_support/features/crew_search/crew_search_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -113,6 +112,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
     return Scaffold(
       backgroundColor: AppColor.bgColor1,
+      bottomNavigationBar: _buildBottomNav(context),
       body: SafeArea(
         bottom: false,
         child: GestureDetector(
@@ -156,7 +156,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                         : Image.network(
                                             url,
                                             fit: BoxFit.cover,
-                                            errorBuilder: (_, __, ___) => CircleAvatar(
+                                            errorBuilder: (_, err, st) => CircleAvatar(
                                               backgroundColor: AppColor.bgColor1,
                                               child: Icon(Icons.account_circle, color: AppColor.secondaryColor1, size: 60),
                                             ),
@@ -172,7 +172,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                         Container(
                           width: 45.w,
                           decoration: BoxDecoration(
-                            color: AppColor.secondaryColor1.withOpacity(0.2),
+                            color: AppColor.secondaryColor1.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Center(
@@ -224,7 +224,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                             shape: BoxShape.circle,
                                             boxShadow: [
                                               BoxShadow(
-                                                color: AppColor.red.withOpacity(_warningGlowAnimation.value),
+                                                color: AppColor.red.withValues(alpha: _warningGlowAnimation.value),
                                                 blurRadius: 10,
                                                 spreadRadius: 1.5,
                                               ),
@@ -280,21 +280,15 @@ class _DashboardScreenState extends State<DashboardScreen>
                               child: SvgPicture.asset(
                                 'assets/Heart Outline.svg',
                                 fit: BoxFit.fill,
-                                color: AppColor.secondaryColor1,
-                                cacheColorFilter: false,
+                                colorFilter: ColorFilter.mode(AppColor.secondaryColor1, BlendMode.srcIn),
                               ),
                             ),
                           );
                         }),
 
-                        // Account switch / menu
+                        // Account / switch profile
                         GestureDetector(
-                          onTap: () {
-                            // Ask for confirmation before logging out
-                            // controller.askLogoutConfirm();
-                            // Open the legacy-style Switch/Add/SignOut/Delete Account dialog
-                            controller.showLoginDialog();
-                          },
+                          onTap: () => controller.showLoginDialog(),
                           child: Icon(Icons.account_circle, color: AppColor.secondaryColor1, size: 20.sp),
                         ),
                       ],
@@ -359,71 +353,15 @@ class _DashboardScreenState extends State<DashboardScreen>
                 ),
               ),
 
-              // ======= TAB ROW (under header, like legacy) =======
-              Container(
-                width: 100.w,
-                margin: EdgeInsets.only(top: 1.5.h),
-                child: Obx(() {
-                  final idx = controller.currentPage.value;
-
-                  Widget buildTab({
-                    required int tabIndex,
-                    required IconData icon,
-                    required String label,
-                    Key? tabKey, // for tutorial
-                  }) {
-                    final bool selected = idx == tabIndex;
-                    return InkWell(
-                      key: tabKey,
-                      onTap: () => controller.selectTab(tabIndex),
-                      child: Column(
-                        children: [
-                          Container(
-                            width: 20.w,
-                            alignment: Alignment.center,
-                            child: Icon(icon, color: selected ? AppColor.secondaryColor1 : AppColor.secondaryColor2, size: 20.sp),
-                          ),
-                          Text(
-                            label,
-                            style: TextStyle(
-                              color: selected ? AppColor.secondaryColor1 : AppColor.secondaryColor2,
-                              fontSize: 10.spV2,
-                            ),
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(top: 1.5.h),
-                            height: 0.3.h,
-                            width: 20.w,
-                            color: selected ? AppColor.secondaryColor1 : AppColor.secondaryColor2,
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      buildTab(tabIndex: 0, icon: Icons.home, label: 'Home'),
-                      buildTab(tabIndex: 1, icon: Icons.account_circle, label: 'Profile', tabKey: _profileTabKey),
-                      buildTab(tabIndex: 2, icon: Icons.person_add_alt_1_rounded, label: 'Connection'),
-                      buildTab(tabIndex: 3, icon: Icons.notifications, label: 'Notification'),
-                      buildTab(tabIndex: 4, icon: Icons.message, label: 'Msg'),
-                    ],
-                  );
-                }),
-              ),
-
               // ======= PAGE CONTENT =======
               Expanded(
                 child: Obx(() {
 
                   final idx = controller.currentPage.value;
 
-                  // Home tab
+                  // Home tab — trip management dashboard
                   if (idx == 0) {
-                    debugPrint("I am here");
-                    return HomeScreen();
+                    return const PremiumDashboardScreen();
                   }
                   // Profile tab
                   else if (idx == 1) {
@@ -464,16 +402,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                     // return const ProfilePilotScreen();
                     // return const ProfileFlightAttendantScreen();
                   }
-                  // Connection tab
+                  // Network tab — crew search
                   else if (idx == 2) {
-                    if (!Get.isRegistered<ConnectionController>()) {
-                      Get.put(ConnectionController());
-                    } else {
-                      // Refresh connections whenever the user switches back
-                      // to the Connection tab and the controller already exists.
-                      Get.find<ConnectionController>().getData();
-                    }
-                    return const ConnectionScreen();
+                    return const CrewSearchScreen();
                   }
                   // Notification tab
                   else if (idx == 3) {
@@ -544,6 +475,126 @@ class _DashboardScreenState extends State<DashboardScreen>
     // All other cases = stronger warning
     return AppColor.red;
   }
+
+  // ── Bottom nav helpers ──────────────────────────────────────────────────
+
+  static const Color _navSelected = Color(0xFF1A2B4A);
+  static const Color _navUnselected = Color(0xFF9EA8C0);
+
+  /// Maps a controller page index to the active bottom-nav tab index.
+  int _bottomNavIndex(int page) {
+    switch (page) {
+      case 0: return 0; // Home
+      case 2: return 1; // Connection
+      case 1: return 2; // Profile
+      case 3: return 3; // Notifications
+      case 4: return 4; // Messages
+      default: return 0;
+    }
+  }
+
+  Widget _buildBottomNav(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    return Obx(() {
+      final activeTab = _bottomNavIndex(controller.currentPage.value);
+      final photoUrl = controller.photoUrl.value;
+
+      return Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          boxShadow: [BoxShadow(color: Color(0x1A000000), blurRadius: 12, offset: Offset(0, -2))],
+        ),
+        padding: EdgeInsets.only(top: 10, bottom: bottomPadding + 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _navItem(label: 'Home', index: 0, activeTab: activeTab,
+              icon: _logoIcon(activeTab == 0),
+              onTap: () => controller.selectTab(0)),
+            _navItem(label: 'Network', index: 1, activeTab: activeTab,
+              icon: Icon(activeTab == 1 ? Icons.people_alt : Icons.people_alt_outlined,
+                  size: 22, color: activeTab == 1 ? _navSelected : _navUnselected),
+              onTap: () => controller.selectTab(2)),
+            _navItem(label: 'Profile', index: 2, activeTab: activeTab,
+              icon: _avatarIcon(photoUrl, activeTab == 2),
+              onTap: () => controller.selectTab(1)),
+            _navItem(label: 'Alerts', index: 3, activeTab: activeTab,
+              icon: Icon(activeTab == 3 ? Icons.notifications_rounded : Icons.notifications_outlined,
+                  size: 22, color: activeTab == 3 ? _navSelected : _navUnselected),
+              onTap: () => controller.selectTab(3)),
+            _navItem(label: 'Messages', index: 4, activeTab: activeTab,
+              icon: Icon(activeTab == 4 ? Icons.chat_bubble_rounded : Icons.chat_bubble_outline_rounded,
+                  size: 21, color: activeTab == 4 ? _navSelected : _navUnselected),
+              onTap: () => controller.selectTab(4)),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _navItem({
+    required String label,
+    required int index,
+    required int activeTab,
+    required Widget icon,
+    required VoidCallback onTap,
+  }) {
+    final bool selected = index == activeTab;
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            icon,
+            const SizedBox(height: 4),
+            Text(label,
+              style: TextStyle(
+                color: selected ? _navSelected : _navUnselected,
+                fontSize: 11,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _logoIcon(bool selected) {
+    return Image.asset(
+      'assets/logoNewGolden.png',
+      width: 22,
+      height: 22,
+      color: selected ? null : _navUnselected,
+      colorBlendMode: selected ? null : BlendMode.srcIn,
+    );
+  }
+
+  Widget _avatarIcon(String photoUrl, bool selected) {
+    return Container(
+      width: 24,
+      height: 24,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: selected ? _navSelected : _navUnselected,
+          width: 1.5,
+        ),
+      ),
+      child: ClipOval(
+        child: photoUrl.isEmpty
+            ? Icon(Icons.person, size: 16, color: selected ? _navSelected : _navUnselected)
+            : Image.network(photoUrl, fit: BoxFit.cover,
+                errorBuilder: (_, err, e) =>
+                    Icon(Icons.person, size: 16, color: selected ? _navSelected : _navUnselected)),
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────────────────────
 
   /// Builds the Search tab body to closely mirror the legacy dashboard search UI.
   Widget _buildSearchTabBody({
@@ -620,7 +671,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       child: ListView.separated(
         padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
         itemCount: results.length,
-        separatorBuilder: (_, __) => SizedBox(height: 0.h),
+        separatorBuilder: (_, idx) => SizedBox(height: 0.h),
         itemBuilder: (context, index) {
           final row = results[index];
 
@@ -775,8 +826,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                     child: SvgPicture.asset(
                       'assets/message.svg',
                       height: 3.0.h,
-                      color: AppColor.secondaryColor2,
-                      cacheColorFilter: false,
+                      colorFilter: ColorFilter.mode(AppColor.secondaryColor2, BlendMode.srcIn),
                     ),
                   ),
                 ),

@@ -1,4 +1,4 @@
-import 'package:crew_support/database/airport_code_model.dart';
+import 'package:crew_support/database/airport_platform.dart';
 import 'package:crew_support/model/trip_model.dart';
 import 'package:crew_support/utils/AppColor.dart';
 import 'package:crew_support/utils/membership_constants.dart';

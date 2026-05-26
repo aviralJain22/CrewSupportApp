@@ -1,69 +1,56 @@
-import 'package:crew_support/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SectionHeader extends StatelessWidget {
   const SectionHeader({
     super.key,
     required this.title,
     this.actionLabel,
-    this.onActionTap,
-    this.padding = const EdgeInsets.symmetric(
-      horizontal: AppSpacing.lg,
-      vertical: AppSpacing.md,
-    ),
+    this.onAction,
   });
 
   final String title;
   final String? actionLabel;
-  final VoidCallback? onActionTap;
-  final EdgeInsets padding;
+  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: padding,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Gold accent bar
-          Container(
-            width: 3,
-            height: 16,
-            decoration: BoxDecoration(
-              color: AppColors.gold,
-              borderRadius: BorderRadius.circular(2),
-            ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title.toUpperCase(),
+          style: GoogleFonts.inter(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFFD4AF37),
+            letterSpacing: 1.8,
           ),
-          const SizedBox(width: AppSpacing.sm),
-
-          // Title
-          Expanded(
-            child: Text(
-              title.toUpperCase(),
-              style: AppTextStyles.label.copyWith(
-                color: AppColors.gold,
-                fontSize: 13,
-                letterSpacing: 1.2,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-
-          // Optional action link
-          if (actionLabel != null)
-            GestureDetector(
-              onTap: onActionTap,
-              child: Text(
-                actionLabel!,
-                style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.gold,
-                  decoration: TextDecoration.underline,
-                  decorationColor: AppColors.gold,
+        ),
+        if (actionLabel != null)
+          GestureDetector(
+            onTap: onAction,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  actionLabel!,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: const Color(0xFFD4AF37),
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
+                const SizedBox(width: 2),
+                const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 10,
+                  color: Color(0xFFD4AF37),
+                ),
+              ],
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 }

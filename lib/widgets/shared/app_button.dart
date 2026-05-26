@@ -1,115 +1,140 @@
-import 'package:crew_support/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 enum AppButtonVariant { primary, secondary, destructive }
+
+enum AppButtonState { idle, loading, success, disabled }
 
 class AppButton extends StatelessWidget {
   const AppButton({
     super.key,
     required this.label,
-    this.onPressed,
+    this.onTap,
     this.variant = AppButtonVariant.primary,
+    this.state = AppButtonState.idle,
+    this.width,
+    this.height = 50,
     this.icon,
-    this.loading = false,
-    this.expanded = true,
-    this.height = 48,
   });
 
   final String label;
-  final VoidCallback? onPressed;
+  final VoidCallback? onTap;
   final AppButtonVariant variant;
-  final IconData? icon;
-  final bool loading;
-  final bool expanded;
+  final AppButtonState state;
+  final double? width;
   final double height;
+  final IconData? icon;
+
+  static const _gold = Color(0xFFD4AF37);
+  static const _darkBg = Color(0xFF0C0A08);
+  static const _red = Color(0xFFB33A3A);
+
+  bool get _isDisabled =>
+      state == AppButtonState.disabled || state == AppButtonState.loading;
 
   @override
   Widget build(BuildContext context) {
-    final isDisabled = onPressed == null || loading;
-
-    Widget child = loading
-        ? SizedBox(
-            height: 20,
-            width: 20,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(_foreground(isDisabled)),
-            ),
-          )
-        : Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (icon != null) ...[
-                Icon(icon, size: 18, color: _foreground(isDisabled)),
-                const SizedBox(width: AppSpacing.sm),
-              ],
-              Text(
-                label,
-                style: AppTextStyles.button.copyWith(color: _foreground(isDisabled)),
-              ),
-            ],
-          );
-
-    final button = SizedBox(
-      height: height,
-      child: switch (variant) {
-        AppButtonVariant.primary => ElevatedButton(
-            onPressed: isDisabled ? null : onPressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isDisabled ? AppColors.goldDim : AppColors.gold,
-              foregroundColor: AppColors.bg0,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.md),
-              ),
-              minimumSize: expanded ? const Size.fromHeight(48) : null,
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-            ),
-            child: child,
-          ),
-        AppButtonVariant.secondary => OutlinedButton(
-            onPressed: isDisabled ? null : onPressed,
-            style: OutlinedButton.styleFrom(
-              foregroundColor: isDisabled ? AppColors.textDisabled : AppColors.gold,
-              side: BorderSide(
-                color: isDisabled ? AppColors.borderIdle : AppColors.gold,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.md),
-              ),
-              minimumSize: expanded ? const Size.fromHeight(48) : null,
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-            ),
-            child: child,
-          ),
-        AppButtonVariant.destructive => ElevatedButton(
-            onPressed: isDisabled ? null : onPressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isDisabled
-                  ? AppColors.error.withValues(alpha: 0.4)
-                  : AppColors.error,
-              foregroundColor: AppColors.textPrimary,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.md),
-              ),
-              minimumSize: expanded ? const Size.fromHeight(48) : null,
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-            ),
-            child: child,
-          ),
-      },
+    return GestureDetector(
+      onTap: _isDisabled ? null : onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: width,
+        height: height,
+        decoration: _decoration,
+        child: Center(child: _child),
+      ),
     );
-
-    return expanded ? SizedBox(width: double.infinity, child: button) : button;
   }
 
-  Color _foreground(bool isDisabled) {
-    if (isDisabled) return AppColors.textDisabled;
-    return switch (variant) {
-      AppButtonVariant.primary     => AppColors.bg0,
-      AppButtonVariant.secondary   => AppColors.gold,
-      AppButtonVariant.destructive => AppColors.textPrimary,
-    };
+  BoxDecoration get _decoration {
+    switch (variant) {
+      case AppButtonVariant.primary:
+        return BoxDecoration(
+          gradient: _isDisabled
+              ? const LinearGradient(
+                  colors: [Color(0xFF5A4E20), Color(0xFF3A3118)],
+                )
+              : state == AppButtonState.success
+                  ? const LinearGradient(
+                      colors: [Color(0xFF2E7D32), Color(0xFF1B5E20)],
+                    )
+                  : const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFFE8C547), _gold],
+                    ),
+          borderRadius: BorderRadius.circular(10),
+        );
+      case AppButtonVariant.secondary:
+        return BoxDecoration(
+          color: Colors.transparent,
+          border: Border.all(
+            color: _isDisabled
+                ? const Color(0xFF5A4E20)
+                : state == AppButtonState.success
+                    ? const Color(0xFF2E7D32)
+                    : _gold,
+            width: 1.5,
+          ),
+          borderRadius: BorderRadius.circular(10),
+        );
+      case AppButtonVariant.destructive:
+        return BoxDecoration(
+          color: _isDisabled
+              ? const Color(0xFF3A1A1A)
+              : state == AppButtonState.success
+                  ? const Color(0xFF1B5E20)
+                  : _red,
+          borderRadius: BorderRadius.circular(10),
+        );
+    }
+  }
+
+  Widget get _child {
+    if (state == AppButtonState.loading) {
+      return SizedBox(
+        width: 20,
+        height: 20,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: variant == AppButtonVariant.primary ? _darkBg : _gold,
+        ),
+      );
+    }
+
+    if (state == AppButtonState.success) {
+      return Icon(
+        Icons.check_rounded,
+        color: variant == AppButtonVariant.primary ? _darkBg : Colors.white,
+        size: 22,
+      );
+    }
+
+    final textColor = _isDisabled
+        ? Colors.white38
+        : variant == AppButtonVariant.primary
+            ? _darkBg
+            : variant == AppButtonVariant.secondary
+                ? _gold
+                : Colors.white;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (icon != null) ...[
+          Icon(icon, color: textColor, size: 18),
+          const SizedBox(width: 8),
+        ],
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: textColor,
+            letterSpacing: 0.3,
+          ),
+        ),
+      ],
+    );
   }
 }

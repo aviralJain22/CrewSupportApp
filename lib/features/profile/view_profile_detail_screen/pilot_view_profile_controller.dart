@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:crew_support/app/routes.dart';
-import 'package:crew_support/database/airport_code_model.dart';
+import 'package:crew_support/database/airport_platform.dart';
 import 'package:crew_support/database/airport_display_helper.dart';
 import 'package:crew_support/features/dashboard_controller.dart';
 import 'package:crew_support/features/trip/create_direct_trip_controller.dart';

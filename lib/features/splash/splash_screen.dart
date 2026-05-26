@@ -49,7 +49,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
       Future.delayed(const Duration(seconds: 0), () {
         if (!mounted) return;
-        Get.offAllNamed(hasLoggedIn ? AppRoutes.dashboard : AppRoutes.login);
+        Get.offAllNamed(hasLoggedIn ? AppRoutes.dashboard : AppRoutes.welcome);
       });
     });
   }

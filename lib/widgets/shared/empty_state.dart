@@ -1,6 +1,6 @@
-import 'package:crew_support/theme/app_theme.dart';
-import 'package:crew_support/widgets/shared/app_button.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'app_button.dart';
 
 class EmptyState extends StatelessWidget {
   const EmptyState({
@@ -9,72 +9,62 @@ class EmptyState extends StatelessWidget {
     required this.title,
     required this.subtitle,
     this.ctaLabel,
-    this.onCtaTap,
-    this.iconColor,
-    this.padding = const EdgeInsets.symmetric(
-      horizontal: AppSpacing.xxl,
-      vertical: AppSpacing.xxl,
-    ),
+    this.onCta,
   });
 
   final IconData icon;
   final String title;
   final String subtitle;
   final String? ctaLabel;
-  final VoidCallback? onCtaTap;
-  final Color? iconColor;
-  final EdgeInsets padding;
+  final VoidCallback? onCta;
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: padding,
+        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 48),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Icon container
             Container(
               width: 72,
               height: 72,
               decoration: BoxDecoration(
-                color: AppColors.bg2,
+                color: const Color(0xFF1E1A14),
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.divider),
+                border: Border.all(
+                  color: const Color(0xFFD4AF37).withValues(alpha: 0.25),
+                  width: 1,
+                ),
               ),
-              child: Icon(
-                icon,
-                size: 32,
-                color: iconColor ?? AppColors.textSecondary,
-              ),
+              child: Icon(icon, color: const Color(0xFFD4AF37), size: 30),
             ),
-
-            const SizedBox(height: AppSpacing.xl),
-
-            // Title
+            const SizedBox(height: 20),
             Text(
               title,
-              style: AppTextStyles.heading3,
               textAlign: TextAlign.center,
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
             ),
-
-            const SizedBox(height: AppSpacing.sm),
-
-            // Subtitle
+            const SizedBox(height: 8),
             Text(
               subtitle,
-              style: AppTextStyles.bodySmall,
               textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                color: Colors.white54,
+                height: 1.5,
+              ),
             ),
-
-            // CTA
-            if (ctaLabel != null) ...[
-              const SizedBox(height: AppSpacing.xl),
+            if (ctaLabel != null && onCta != null) ...[
+              const SizedBox(height: 28),
               AppButton(
                 label: ctaLabel!,
-                onPressed: onCtaTap,
-                variant: AppButtonVariant.secondary,
-                expanded: false,
+                onTap: onCta,
+                width: 200,
               ),
             ],
           ],

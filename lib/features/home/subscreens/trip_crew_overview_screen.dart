@@ -1,5 +1,5 @@
 import 'package:crew_support/app/routes.dart';
-import 'package:crew_support/database/airport_code_model.dart';
+import 'package:crew_support/database/airport_platform.dart';
 import 'package:crew_support/features/dashboard_controller.dart';
 import 'package:crew_support/features/home/subscreens/trip_crew_overview_controller.dart';
 import 'package:crew_support/features/message/chat_service.dart';
