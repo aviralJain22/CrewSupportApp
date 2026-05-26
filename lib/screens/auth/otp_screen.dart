@@ -100,7 +100,7 @@ class _OtpScreenState extends State<OtpScreen> {
               const SizedBox(height: 24),
               Text(
                 'Verify your number',
-                style: GoogleFonts.playfairDisplay(
+                style: GoogleFonts.cinzel(
                   fontSize: 26,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,

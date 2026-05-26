@@ -47,7 +47,7 @@ class WelcomeScreen extends StatelessWidget {
                   // ── Tagline ───────────────────────────────────────────
                   Text(
                     'Private jet for your life,\nwork and other goals',
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.cinzel(
                       fontSize: 13.0.spV2,
                       color: Colors.white.withValues(alpha: 0.78),
                       height: 1.55,
@@ -266,7 +266,7 @@ class _Heading extends StatelessWidget {
       children: [
         Text(
           'Welcome\naboard',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.cinzel(
             fontSize: 40.0.spV2,
             fontWeight: FontWeight.w700,
             color: const Color(0xFFF2A11F),
@@ -325,7 +325,7 @@ class _OutlinedActionButton extends StatelessWidget {
         child: Center(
           child: Text(
             label,
-            style: GoogleFonts.playfairDisplay(
+            style: GoogleFonts.cinzel(
               fontSize: 13.0.spV2,
               fontWeight: FontWeight.w600,
               color: filled ? _gold : Colors.white.withValues(alpha: 0.80),

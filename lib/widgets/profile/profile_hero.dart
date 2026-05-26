@@ -31,7 +31,7 @@ class ProfileHero extends StatelessWidget {
         const SizedBox(height: 14),
         Text(
           name,
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.cinzel(
             fontSize: 22,
             fontWeight: FontWeight.w700,
             color: Colors.white,

@@ -89,6 +89,8 @@ import 'package:crew_support/features/webview_stack_screen.dart';
 import 'package:get/get.dart';
 import '../screens/auth/login_screen.dart' as new_auth;
 import '../screens/auth/otp_screen.dart' as new_otp;
+import '../screens/auth/signup_screen.dart' as new_signup;
+import '../screens/shell/main_shell.dart';
 import '../screens/profile/owner_profile_screen.dart';
 import '../screens/profile/pilot_profile_screen.dart';
 import '../screens/profile/fa_profile_screen.dart';
@@ -172,8 +174,10 @@ class AppRoutes {
   static const notificationsNew = '/notifications-new';
   static const favourites = '/favourites';
   // Sprint auth screens
-  static const loginNew = '/login-new';
-  static const otpNew = '/otp-new';
+  static const loginNew  = '/login-new';
+  static const otpNew    = '/otp-new';
+  static const signupNew = '/signup-new';
+  static const mainShell = '/main-shell';
 
   static final pages = <GetPage>[
     GetPage(name: splash, page: () => const SplashScreen()),
@@ -517,6 +521,14 @@ class AppRoutes {
     GetPage(
       name: AppRoutes.otpNew,
       page: () => const new_otp.OtpScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.signupNew,
+      page: () => const new_signup.SignupScreen(),
+    ),
+    GetPage(
+      name: AppRoutes.mainShell,
+      page: () => const MainShellScreen(),
     ),
   ];
 }

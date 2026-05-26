@@ -90,14 +90,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
           preferredSize: const Size.fromHeight(1),
           child: Divider(color: _border, height: 1),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: Colors.white, size: 18),
-          onPressed: () => Navigator.of(context).maybePop(),
-        ),
+        automaticallyImplyLeading: false,
+        centerTitle: true,
         title: Text(
           'Notifications',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.cinzel(
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: Colors.white,
@@ -251,7 +248,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
           const SizedBox(height: 16),
           Text(
             'All Caught Up',
-            style: GoogleFonts.playfairDisplay(
+            style: GoogleFonts.cinzel(
               fontSize: 20,
               fontWeight: FontWeight.w700,
               color: Colors.white,

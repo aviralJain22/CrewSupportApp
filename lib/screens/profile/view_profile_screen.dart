@@ -193,7 +193,7 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
           children: [
             Text(
               value,
-              style: GoogleFonts.playfairDisplay(
+              style: GoogleFonts.cinzel(
                 fontSize: 22,
                 fontWeight: FontWeight.w700,
                 color: _gold,

@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../widgets/shared/app_button.dart';
-import '../../widgets/shared/app_text_field.dart';
+import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../app/routes.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,120 +13,145 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  static const _bg = Color(0xFF0C0A08);
-  static const _gold = Color(0xFFD4AF37);
-  static const _cardBg = Color(0xFF181410);
-  static const _border = Color(0xFF2A2520);
+class _LoginScreenState extends State<LoginScreen>
+    with SingleTickerProviderStateMixin {
+  static const _bg       = Color(0xFF0C0A06);
+  static const _gold     = Color(0xFFD4AF37);
+  static const _cardBg   = Color(0xFF181410);
+  static const _border   = Color(0xFF2A2520);
 
-  final _emailCtrl = TextEditingController();
+  static const _keyRememberMe    = 'cs_remember_me';
+  static const _keySavedEmail    = 'cs_saved_email';
+  static const _keySavedPassword = 'cs_saved_password';
+  static const _keySessionActive = 'cs_session_active';
+
+  static const _membershipTypes = [
+    'Owner',
+    'Pilot / Captain',
+    'Flight Attendant',
+  ];
+
+  String? _membershipType;
+  final _emailCtrl    = TextEditingController();
   final _passwordCtrl = TextEditingController();
-  bool _passwordVisible = false;
-  bool _rememberMe = false;
-  bool _emailError = false;
-  bool _passwordError = false;
-  AppButtonState _btnState = AppButtonState.idle;
+  bool _passwordVis   = false;
+  bool _rememberMe    = false;
+  bool _loading       = false;
+  bool _autoLoggingIn = false;
+
+  late final AnimationController _shimmerCtrl = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1400),
+  )..repeat();
 
   bool get _canSubmit =>
-      _emailCtrl.text.trim().isNotEmpty &&
-      _passwordCtrl.text.isNotEmpty;
+      _emailCtrl.text.trim().isNotEmpty && _passwordCtrl.text.isNotEmpty;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkSavedSession();
+  }
 
   @override
   void dispose() {
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
+    _shimmerCtrl.dispose();
     super.dispose();
   }
 
-  bool _isValidEmail(String v) =>
-      RegExp(r'^[\w.+\-]+@[\w\-]+\.[a-zA-Z]{2,}$').hasMatch(v.trim());
+  // ─── Session logic ────────────────────────────────────────────────────────
+
+  Future<void> _checkSavedSession() async {
+    final prefs         = await SharedPreferences.getInstance();
+    final rememberMe    = prefs.getBool(_keyRememberMe)      ?? false;
+    final sessionActive = prefs.getBool(_keySessionActive)   ?? false;
+    final savedEmail    = prefs.getString(_keySavedEmail)    ?? '';
+    final savedPassEnc  = prefs.getString(_keySavedPassword) ?? '';
+
+    if (!rememberMe) return;
+
+    if (savedEmail.isNotEmpty) {
+      String decoded = '';
+      if (savedPassEnc.isNotEmpty) {
+        try { decoded = utf8.decode(base64Decode(savedPassEnc)); } catch (_) {}
+      }
+      setState(() {
+        _emailCtrl.text    = savedEmail;
+        _passwordCtrl.text = decoded;
+        _rememberMe        = true;
+      });
+    }
+
+    if (sessionActive && savedEmail.isNotEmpty) {
+      setState(() => _autoLoggingIn = true);
+      await Future.delayed(const Duration(milliseconds: 1600));
+      if (!mounted) return;
+      Get.offAllNamed(AppRoutes.mainShell);
+    }
+  }
+
+  Future<void> _persistSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (_rememberMe) {
+      final enc = base64Encode(utf8.encode(_passwordCtrl.text));
+      await prefs.setBool(_keyRememberMe, true);
+      await prefs.setString(_keySavedEmail, _emailCtrl.text.trim());
+      await prefs.setString(_keySavedPassword, enc);
+      await prefs.setBool(_keySessionActive, true);
+    } else {
+      await prefs.remove(_keyRememberMe);
+      await prefs.remove(_keySavedEmail);
+      await prefs.remove(_keySavedPassword);
+      await prefs.remove(_keySessionActive);
+    }
+  }
 
   Future<void> _signIn() async {
-    final emailOk = _isValidEmail(_emailCtrl.text);
-    final passOk = _passwordCtrl.text.length >= 6;
-    if (!emailOk || !passOk) {
-      setState(() {
-        _emailError = !emailOk;
-        _passwordError = !passOk;
-      });
-      return;
-    }
-    setState(() {
-      _emailError = false;
-      _passwordError = false;
-      _btnState = AppButtonState.loading;
-    });
-    await Future.delayed(const Duration(seconds: 2));
+    if (!_canSubmit) return;
+    setState(() => _loading = true);
+    await Future.delayed(const Duration(milliseconds: 1400));
     if (!mounted) return;
-    setState(() => _btnState = AppButtonState.success);
-    await Future.delayed(const Duration(milliseconds: 900));
-    if (!mounted) return;
-    Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (_) => false);
+    await _persistSession();
+    Get.offAllNamed(AppRoutes.mainShell);
   }
+
+  // ─── Build ────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
+    if (_autoLoggingIn) return _buildAutoLogin();
+
     return Scaffold(
       backgroundColor: _bg,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 28),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 60),
-              _logo,
               const SizedBox(height: 44),
-              Text(
-                'Welcome back',
-                style: GoogleFonts.playfairDisplay(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Sign in to continue.',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: Colors.white54,
-                ),
-              ),
+              _buildLogo(),
               const SizedBox(height: 36),
-              AppTextField(
-                label: 'Email',
-                controller: _emailCtrl,
-                keyboardType: TextInputType.emailAddress,
-                hint: 'you@example.com',
-                prefixIcon: const Icon(Icons.mail_outline_rounded,
-                    color: Colors.white38, size: 18),
-                onChanged: (_) => setState(() {
-                  _emailError = false;
-                }),
-                errorText: _emailError ? 'Enter a valid email address' : null,
-              ),
-              const SizedBox(height: 16),
-              _passwordField,
+              _buildMembershipDropdown(),
               const SizedBox(height: 14),
-              _rememberForgotRow,
+              _buildEmailField(),
+              const SizedBox(height: 14),
+              _buildPasswordField(),
+              const SizedBox(height: 10),
+              _buildForgotRow(),
+              const SizedBox(height: 14),
+              _buildRememberMeCard(),
+              const SizedBox(height: 24),
+              _buildSignInBtn(),
+              const SizedBox(height: 20),
+              _buildDivider(),
+              const SizedBox(height: 20),
+              _buildJoinNowBtn(),
               const SizedBox(height: 28),
-              AppButton(
-                label: 'Sign In',
-                state: _canSubmit ? _btnState : AppButtonState.disabled,
-                onTap: _signIn,
-                width: double.infinity,
-                height: 54,
-              ),
+              _buildHelpCenter(),
               const SizedBox(height: 24),
-              _divider,
-              const SizedBox(height: 24),
-              _socialRow,
-              const SizedBox(height: 28),
-              _signUpRow,
-              const SizedBox(height: 24),
-              _terms,
-              const SizedBox(height: 32),
             ],
           ),
         ),
@@ -131,65 +159,169 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget get _logo => Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: _gold.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: _gold.withValues(alpha: 0.35)),
-            ),
-            child: const Icon(Icons.flight_rounded, color: _gold, size: 22),
-          ),
-          const SizedBox(width: 12),
-          Text(
-            'CrewSupport',
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-            ),
-          ),
-        ],
-      );
+  // ─── Logo ─────────────────────────────────────────────────────────────────
 
-  Widget get _passwordField {
+  Widget _buildLogo() {
+    return Column(
+      children: [
+        Container(
+          width: 82, height: 82,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                const Color(0xFF2C2200),
+                const Color(0xFF1A1500),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: _gold.withValues(alpha: 0.65), width: 1.8),
+            boxShadow: [
+              BoxShadow(
+                color: _gold.withValues(alpha: 0.18),
+                blurRadius: 20,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+          child: const Icon(Icons.flight_rounded, color: _gold, size: 42),
+        ),
+        const SizedBox(height: 14),
+        Text(
+          'CREW',
+          style: GoogleFonts.cinzel(
+            fontSize: 36,
+            fontWeight: FontWeight.w700,
+            color: _gold,
+            letterSpacing: 2,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          'SUPPORT',
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: _gold,
+            letterSpacing: 5,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ─── Membership dropdown ──────────────────────────────────────────────────
+
+  Widget _buildMembershipDropdown() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'PASSWORD',
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            color: _passwordError ? const Color(0xFFB33A3A) : Colors.white54,
-            letterSpacing: 1.2,
-          ),
-        ),
+        _label('Membership Type'),
         const SizedBox(height: 8),
-        Container(
-          height: 52,
-          decoration: BoxDecoration(
-            color: _cardBg,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: _passwordError
-                  ? const Color(0xFFB33A3A)
-                  : const Color(0xFF2A2520),
-              width: _passwordError ? 1.5 : 1,
-            ),
-          ),
+        _fieldShell(
           child: Row(
             children: [
               const SizedBox(width: 14),
+              const Icon(Icons.person_outline_rounded,
+                  color: _gold, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _membershipType,
+                    hint: Text(
+                      'Select Type',
+                      style: GoogleFonts.inter(
+                          fontSize: 14, color: Colors.white38),
+                    ),
+                    isExpanded: true,
+                    dropdownColor: const Color(0xFF1E1B17),
+                    icon: const Icon(Icons.keyboard_arrow_down_rounded,
+                        color: Colors.white38, size: 20),
+                    style: GoogleFonts.inter(
+                        fontSize: 14, color: Colors.white),
+                    items: _membershipTypes
+                        .map((t) => DropdownMenuItem(
+                              value: t,
+                              child: Text(t),
+                            ))
+                        .toList(),
+                    onChanged: (v) =>
+                        setState(() => _membershipType = v),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ─── Email / Phone ────────────────────────────────────────────────────────
+
+  Widget _buildEmailField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _label('Email / Phone'),
+        const SizedBox(height: 8),
+        _fieldShell(
+          child: Row(
+            children: [
+              const SizedBox(width: 14),
+              const Icon(Icons.mail_outline_rounded,
+                  color: _gold, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextField(
+                  controller: _emailCtrl,
+                  keyboardType: TextInputType.emailAddress,
+                  onChanged: (_) => setState(() {}),
+                  style: GoogleFonts.inter(
+                      fontSize: 14, color: Colors.white),
+                  cursorColor: _gold,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Email or phone number',
+                    hintStyle: GoogleFonts.inter(
+                        fontSize: 14, color: Colors.white38),
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 14),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ─── Password ─────────────────────────────────────────────────────────────
+
+  Widget _buildPasswordField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _label('Password'),
+        const SizedBox(height: 8),
+        _fieldShell(
+          child: Row(
+            children: [
+              const SizedBox(width: 14),
+              const Icon(Icons.lock_outline_rounded,
+                  color: _gold, size: 20),
+              const SizedBox(width: 10),
               Expanded(
                 child: TextField(
                   controller: _passwordCtrl,
-                  obscureText: !_passwordVisible,
-                  onChanged: (_) => setState(() => _passwordError = false),
-                  style: GoogleFonts.inter(fontSize: 14, color: Colors.white),
+                  obscureText: !_passwordVis,
+                  onChanged: (_) => setState(() {}),
+                  style: GoogleFonts.inter(
+                      fontSize: 14, color: Colors.white),
                   cursorColor: _gold,
                   decoration: InputDecoration(
                     border: InputBorder.none,
@@ -203,14 +335,14 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               GestureDetector(
                 onTap: () =>
-                    setState(() => _passwordVisible = !_passwordVisible),
+                    setState(() => _passwordVis = !_passwordVis),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 14),
                   child: Icon(
-                    _passwordVisible
+                    _passwordVis
                         ? Icons.visibility_outlined
                         : Icons.visibility_off_outlined,
-                    size: 18,
+                    size: 20,
                     color: Colors.white38,
                   ),
                 ),
@@ -218,155 +350,325 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),
         ),
-        if (_passwordError) ...[
-          const SizedBox(height: 6),
-          Text(
-            'Password must be at least 6 characters',
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: const Color(0xFFB33A3A),
-            ),
-          ),
-        ],
       ],
     );
   }
 
-  Widget get _rememberForgotRow => Row(
-        children: [
-          GestureDetector(
-            onTap: () => setState(() => _rememberMe = !_rememberMe),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  width: 20,
-                  height: 20,
-                  decoration: BoxDecoration(
-                    color: _rememberMe
-                        ? _gold.withValues(alpha: 0.15)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(5),
-                    border: Border.all(
-                      color: _rememberMe ? _gold : const Color(0xFF3A3530),
-                      width: _rememberMe ? 1.5 : 1,
+  // ─── Forgot row ───────────────────────────────────────────────────────────
+
+  Widget _buildForgotRow() {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: GestureDetector(
+        onTap: () {},
+        child: Text(
+          'Forgot Password?',
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            color: _gold,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ─── Remember Me card ─────────────────────────────────────────────────────
+
+  Widget _buildRememberMeCard() {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        setState(() => _rememberMe = !_rememberMe);
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+        decoration: BoxDecoration(
+          color: _rememberMe
+              ? _gold.withValues(alpha: 0.06)
+              : _cardBg,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: _rememberMe
+                ? _gold.withValues(alpha: 0.5)
+                : _border,
+          ),
+        ),
+        child: Row(
+          children: [
+            // Checkbox
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              width: 22, height: 22,
+              decoration: BoxDecoration(
+                color: _rememberMe
+                    ? _gold.withValues(alpha: 0.15)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(
+                  color: _rememberMe ? _gold : Colors.white38,
+                  width: 1.5,
+                ),
+              ),
+              child: _rememberMe
+                  ? const Icon(Icons.check_rounded,
+                      size: 14, color: _gold)
+                  : null,
+            ),
+            const SizedBox(width: 12),
+            // Text
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Remember Me',
+                    style: GoogleFonts.inter(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w600,
+                      color: _rememberMe ? Colors.white : Colors.white70,
                     ),
                   ),
-                  child: _rememberMe
-                      ? const Icon(Icons.check_rounded,
-                          size: 13, color: Color(0xFFD4AF37))
-                      : null,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Remember me',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: Colors.white70,
+                  const SizedBox(height: 2),
+                  Text(
+                    'Save my login info for faster access',
+                    style: GoogleFonts.inter(
+                      fontSize: 11.5,
+                      color: Colors.white38,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          const Spacer(),
-          GestureDetector(
-            onTap: () {},
-            child: Text(
-              'Forgot password?',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: _gold,
-                fontWeight: FontWeight.w500,
+                ],
               ),
             ),
-          ),
-        ],
-      );
-
-  Widget get _divider => Row(
-        children: [
-          Expanded(child: Divider(color: _border)),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            child: Text(
-              'or continue with',
-              style: GoogleFonts.inter(fontSize: 12, color: Colors.white38),
+            const SizedBox(width: 10),
+            // Shield icon
+            Icon(
+              _rememberMe
+                  ? Icons.shield_rounded
+                  : Icons.shield_outlined,
+              color: _rememberMe ? _gold : Colors.white24,
+              size: 22,
             ),
-          ),
-          Expanded(child: Divider(color: _border)),
-        ],
-      );
+          ],
+        ),
+      ),
+    );
+  }
 
-  Widget get _socialRow => Row(
-        children: [
-          _socialBtn('Google', Icons.g_mobiledata_rounded),
-          const SizedBox(width: 12),
-          _socialBtn('Apple', Icons.apple_rounded),
-        ],
-      );
+  // ─── Sign In button ───────────────────────────────────────────────────────
 
-  Widget _socialBtn(String label, IconData icon) => Expanded(
-        child: GestureDetector(
-          onTap: () {},
-          child: Container(
-            height: 50,
-            decoration: BoxDecoration(
-              color: _cardBg,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: _border),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, color: Colors.white70, size: 22),
-                const SizedBox(width: 8),
-                Text(
-                  label,
+  Widget _buildSignInBtn() {
+    return GestureDetector(
+      onTap: _canSubmit && !_loading ? _signIn : null,
+      child: Container(
+        width: double.infinity,
+        height: 56,
+        decoration: BoxDecoration(
+          gradient: _canSubmit
+              ? const LinearGradient(
+                  colors: [Color(0xFFE8C547), Color(0xFFB8960C)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
+          color: _canSubmit ? null : const Color(0xFF1E1B17),
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: _canSubmit
+              ? [
+                  BoxShadow(
+                    color: _gold.withValues(alpha: 0.28),
+                    blurRadius: 18,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
+          border: _canSubmit
+              ? null
+              : Border.all(color: _border),
+        ),
+        child: Center(
+          child: _loading
+              ? SizedBox(
+                  width: 22, height: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      _canSubmit
+                          ? const Color(0xFF0C0A08)
+                          : Colors.white24,
+                    ),
+                  ),
+                )
+              : Text(
+                  'Sign In',
                   style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: Colors.white70,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: _canSubmit
+                        ? const Color(0xFF0C0A08)
+                        : Colors.white24,
                   ),
                 ),
-              ],
+        ),
+      ),
+    );
+  }
+
+  // ─── Divider ──────────────────────────────────────────────────────────────
+
+  Widget _buildDivider() {
+    return Row(
+      children: [
+        Expanded(child: Divider(color: _border)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          child: Text(
+            'OR',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.white38,
+              letterSpacing: 1,
             ),
           ),
         ),
-      );
+        Expanded(child: Divider(color: _border)),
+      ],
+    );
+  }
 
-  Widget get _signUpRow => Center(
-        child: Row(
+  // ─── Join Now ─────────────────────────────────────────────────────────────
+
+  Widget _buildJoinNowBtn() {
+    return GestureDetector(
+      onTap: () => Get.toNamed(AppRoutes.signupNew),
+      child: Container(
+        width: double.infinity,
+        height: 56,
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: _gold.withValues(alpha: 0.7), width: 1.5),
+        ),
+        child: Center(
+          child: Text(
+            'Join Now',
+            style: GoogleFonts.inter(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: _gold,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ─── Help Center ──────────────────────────────────────────────────────────
+
+  Widget _buildHelpCenter() {
+    return GestureDetector(
+      onTap: () {},
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.headset_mic_outlined, color: _gold, size: 18),
+          const SizedBox(width: 8),
+          Text(
+            'Help Center',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: _gold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─── Auto-login shimmer ───────────────────────────────────────────────────
+
+  Widget _buildAutoLogin() {
+    return Scaffold(
+      backgroundColor: _bg,
+      body: Center(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              "Don't have an account? ",
-              style: GoogleFonts.inter(fontSize: 13, color: Colors.white38),
+            Container(
+              width: 72, height: 72,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [const Color(0xFF2C2200), const Color(0xFF1A1500)],
+                ),
+                shape: BoxShape.circle,
+                border: Border.all(color: _gold.withValues(alpha: 0.5)),
+              ),
+              child: const Icon(Icons.flight_rounded, color: _gold, size: 34),
             ),
-            GestureDetector(
-              onTap: () {},
-              child: Text(
-                'Sign up',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: _gold,
-                  fontWeight: FontWeight.w600,
+            const SizedBox(height: 22),
+            Text(
+              'CREW SUPPORT',
+              style: GoogleFonts.cinzel(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: _gold,
+                letterSpacing: 2,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Signing you in…',
+              style: GoogleFonts.inter(fontSize: 14, color: Colors.white38),
+            ),
+            const SizedBox(height: 32),
+            AnimatedBuilder(
+              animation: _shimmerCtrl,
+              builder: (_, _) => Container(
+                width: 120, height: 3,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(2),
+                  gradient: LinearGradient(
+                    colors: [
+                      _gold.withValues(alpha: 0),
+                      _gold.withValues(alpha: 0.8),
+                      _gold.withValues(alpha: 0),
+                    ],
+                    stops: [
+                      (_shimmerCtrl.value - 0.3).clamp(0.0, 1.0),
+                      _shimmerCtrl.value.clamp(0.0, 1.0),
+                      (_shimmerCtrl.value + 0.3).clamp(0.0, 1.0),
+                    ],
+                  ),
                 ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // ─── Helpers ──────────────────────────────────────────────────────────────
+
+  Widget _label(String text) => Text(
+        text,
+        style: GoogleFonts.inter(
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+          color: Colors.white70,
+        ),
       );
 
-  Widget get _terms => Center(
-        child: Text(
-          'By continuing you agree to our Terms of Service\nand Privacy Policy.',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.inter(
-            fontSize: 11,
-            color: Colors.white24,
-            height: 1.6,
-          ),
+  Widget _fieldShell({required Widget child}) => Container(
+        height: 56,
+        decoration: BoxDecoration(
+          color: _cardBg,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: _border),
         ),
+        child: child,
       );
 }

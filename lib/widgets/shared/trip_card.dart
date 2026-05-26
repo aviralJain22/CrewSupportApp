@@ -12,7 +12,11 @@ class TripCard extends StatelessWidget {
     required this.toCity,
     required this.date,
     required this.status,
-    this.assignedCrew,
+    this.aircraft,
+    this.tailNumber,
+    this.crewFilled = 0,
+    this.crewMax = 0,
+    this.avatarSeeds = const [],
     this.onTap,
   });
 
@@ -22,24 +26,47 @@ class TripCard extends StatelessWidget {
   final String toCity;
   final String date;
   final TripStatus status;
-  final List<String>? assignedCrew;
+  final String? aircraft;
+  final String? tailNumber;
+  final int crewFilled;
+  final int crewMax;
+  final List<int> avatarSeeds;
   final VoidCallback? onTap;
 
-  static const _gold = Color(0xFFD4AF37);
-  static const _cardBg = Color(0xFF181410);
-  static const _border = Color(0xFF2A2520);
+  static const _gold    = Color(0xFFD4AF37);
+  static const _cardBg  = Color(0xFF141210);
+  static const _border  = Color(0xFF2A2520);
+
+  // Deterministic gradient based on route codes
+  List<Color> get _jetGradient {
+    final hash = (fromCode + toCode).codeUnits.fold(0, (a, b) => a + b);
+    const opts = [
+      [Color(0xFF2A1A08), Color(0xFF0A0905)],
+      [Color(0xFF08182A), Color(0xFF0A0905)],
+      [Color(0xFF1A081A), Color(0xFF0A0905)],
+      [Color(0xFF08180A), Color(0xFF0A0905)],
+      [Color(0xFF1A1408), Color(0xFF0A0905)],
+    ];
+    return opts[hash % opts.length];
+  }
+
+  double get _jetAngle {
+    const angles = [-0.20, -0.15, -0.25, -0.18, -0.22];
+    final hash = fromCode.codeUnits.fold(0, (a, b) => a + b);
+    return angles[hash % angles.length];
+  }
 
   Color get _statusColor => switch (status) {
-        TripStatus.active => const Color(0xFF3DAA57),
-        TripStatus.pending => const Color(0xFFF5A623),
-        TripStatus.draft => const Color(0xFF777777),
+        TripStatus.active    => const Color(0xFF3DAA57),
+        TripStatus.pending   => const Color(0xFFF5A623),
+        TripStatus.draft     => const Color(0xFF777777),
         TripStatus.confirmed => const Color(0xFF4A90D9),
       };
 
   String get _statusLabel => switch (status) {
-        TripStatus.active => 'Active',
-        TripStatus.pending => 'Pending',
-        TripStatus.draft => 'Draft',
+        TripStatus.active    => 'Active',
+        TripStatus.pending   => 'Pending',
+        TripStatus.draft     => 'Draft',
         TripStatus.confirmed => 'Confirmed',
       };
 
@@ -49,181 +76,305 @@ class TripCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: _cardBg,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: _border, width: 1),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: _routeRow),
-                _statusBadge,
-              ],
-            ),
-            const SizedBox(height: 12),
-            Container(
-              height: 1,
-              color: const Color(0xFF2A2520),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                const Icon(Icons.calendar_today_outlined,
-                    size: 13, color: Colors.white38),
-                const SizedBox(width: 6),
-                Text(
-                  date,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: Colors.white54,
-                  ),
-                ),
-                const Spacer(),
-                if (assignedCrew != null && assignedCrew!.isNotEmpty)
-                  _crewAvatars,
-              ],
+          border: Border.all(color: _border),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.4),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
             ),
           ],
+        ),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildJetPane(),
+              Expanded(child: _buildContent()),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget get _routeRow => Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+  // ── Jet image pane ───────────────────────────────────────────────────────────
+
+  Widget _buildJetPane() {
+    return Container(
+      width: 108,
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(14),
+          bottomLeft: Radius.circular(14),
+        ),
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          colors: _jetGradient,
+        ),
+      ),
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                fromCode,
-                style: GoogleFonts.playfairDisplay(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                  height: 1,
-                ),
-              ),
-              Text(
-                fromCity,
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  color: Colors.white38,
-                ),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              children: [
-                Container(
-                  width: 24,
-                  height: 1,
-                  color: _gold.withValues(alpha: 0.4),
-                ),
-                const Icon(Icons.flight, size: 16, color: _gold),
-                Container(
-                  width: 24,
-                  height: 1,
-                  color: _gold.withValues(alpha: 0.4),
-                ),
-              ],
+          Container(
+            width: 58,
+            height: 58,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(colors: [
+                _gold.withValues(alpha: 0.14),
+                Colors.transparent,
+              ]),
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                toCode,
-                style: GoogleFonts.playfairDisplay(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                  height: 1,
-                ),
-              ),
-              Text(
-                toCity,
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  color: Colors.white38,
-                ),
-              ),
-            ],
+          Positioned(
+            bottom: 22,
+            left: 6,
+            right: 0,
+            child: Container(
+              height: 0.5,
+              color: _gold.withValues(alpha: 0.22),
+            ),
+          ),
+          Transform.rotate(
+            angle: _jetAngle,
+            child: Icon(
+              Icons.airplanemode_active_rounded,
+              color: Colors.white.withValues(alpha: 0.88),
+              size: 36,
+            ),
           ),
         ],
-      );
+      ),
+    );
+  }
 
-  Widget get _statusBadge => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(
-          color: _statusColor.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-            color: _statusColor.withValues(alpha: 0.4),
-            width: 1,
+  // ── Content ──────────────────────────────────────────────────────────────────
+
+  Widget _buildContent() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Route + status
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(child: _buildRouteRow()),
+              const SizedBox(width: 8),
+              _buildStatusBadge(),
+            ],
+          ),
+          const SizedBox(height: 3),
+          // City names
+          Row(
+            children: [
+              Text(fromCity,
+                  style: GoogleFonts.inter(
+                      fontSize: 10.5, color: Colors.white38)),
+              const Spacer(),
+              Text(toCity,
+                  style: GoogleFonts.inter(
+                      fontSize: 10.5, color: Colors.white38)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Divider(color: _border, height: 1),
+          const SizedBox(height: 8),
+          // Meta info
+          _buildMetaRow(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRouteRow() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(fromCode,
+            style: GoogleFonts.cinzel(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+              height: 1,
+            )),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: Row(
+            children: [
+              Container(width: 10, height: 1,
+                  color: _gold.withValues(alpha: 0.45)),
+              const Icon(Icons.flight, size: 13, color: _gold),
+              Container(width: 10, height: 1,
+                  color: _gold.withValues(alpha: 0.45)),
+            ],
           ),
         ),
-        child: Row(
+        Text(toCode,
+            style: GoogleFonts.cinzel(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+              height: 1,
+            )),
+      ],
+    );
+  }
+
+  Widget _buildStatusBadge() {
+    final sc = _statusColor;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: sc.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: sc.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 6, height: 6,
+            decoration: BoxDecoration(color: sc, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 4),
+          Text(_statusLabel,
+              style: GoogleFonts.inter(
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w600,
+                  color: sc)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMetaRow() {
+    final parts = date.split('·');
+    final dateLine1 = parts.first.trim();
+    final dateLine2 = parts.length > 1 ? parts.last.trim() : '';
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        _metaItem(Icons.calendar_today_outlined, dateLine1, dateLine2),
+        if (aircraft != null) ...[
+          const SizedBox(width: 10),
+          _metaItem(Icons.airplanemode_active_rounded,
+              aircraft!, tailNumber ?? ''),
+        ],
+        if (crewMax > 0) ...[
+          const SizedBox(width: 10),
+          _metaItem(Icons.people_alt_outlined,
+              '$crewFilled / $crewMax', 'Crew'),
+        ],
+        const Spacer(),
+        if (avatarSeeds.isNotEmpty) _buildAvatarStack(),
+      ],
+    );
+  }
+
+  Widget _metaItem(IconData icon, String line1, String line2) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 1),
+          child: Icon(icon,
+              color: _gold.withValues(alpha: 0.65), size: 12),
+        ),
+        const SizedBox(width: 4),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 6,
-              height: 6,
-              decoration: BoxDecoration(
-                color: _statusColor,
-                shape: BoxShape.circle,
-              ),
-            ),
-            const SizedBox(width: 5),
-            Text(
-              _statusLabel,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: _statusColor,
-              ),
-            ),
+            Text(line1,
+                style: GoogleFonts.inter(
+                    fontSize: 10,
+                    color: Colors.white70,
+                    height: 1.25)),
+            if (line2.isNotEmpty)
+              Text(line2,
+                  style: GoogleFonts.inter(
+                      fontSize: 9.5,
+                      color: Colors.white38,
+                      height: 1.25)),
           ],
         ),
-      );
+      ],
+    );
+  }
 
-  Widget get _crewAvatars {
-    final crew = assignedCrew!.take(3).toList();
+  Widget _buildAvatarStack() {
+    final seeds = avatarSeeds.take(3).toList();
+    final overflow = (crewFilled - seeds.length).clamp(0, 99);
+    final totalWidth =
+        seeds.length * 18.0 + (overflow > 0 ? 26.0 : 4.0);
+
     return SizedBox(
       height: 24,
-      width: crew.length * 18.0 + 6,
+      width: totalWidth,
       child: Stack(
-        children: List.generate(crew.length, (i) {
-          return Positioned(
-            left: i * 18.0,
-            child: Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF2A2520),
-                border: Border.all(color: _cardBg, width: 1.5),
-              ),
-              child: Center(
-                child: Text(
-                  crew[i].isNotEmpty ? crew[i][0].toUpperCase() : '?',
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: _gold,
+        children: [
+          ...List.generate(seeds.length, (i) {
+            return Positioned(
+              left: i * 18.0,
+              child: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border:
+                      Border.all(color: _cardBg, width: 1.5),
+                  color: const Color(0xFF2A2520),
+                ),
+                child: ClipOval(
+                  child: Image.network(
+                    'https://i.pravatar.cc/48?img=${seeds[i]}',
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => Center(
+                      child: Text(
+                        String.fromCharCode(65 + i),
+                        style: GoogleFonts.inter(
+                            color: _gold,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700),
+                      ),
+                    ),
                   ),
                 ),
               ),
+            );
+          }),
+          if (overflow > 0)
+            Positioned(
+              left: seeds.length * 18.0,
+              child: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _gold.withValues(alpha: 0.15),
+                  border: Border.all(
+                      color: _gold.withValues(alpha: 0.4)),
+                ),
+                child: Center(
+                  child: Text('+$overflow',
+                      style: GoogleFonts.inter(
+                          fontSize: 8,
+                          color: _gold,
+                          fontWeight: FontWeight.w700)),
+                ),
+              ),
             ),
-          );
-        }),
+        ],
       ),
     );
   }

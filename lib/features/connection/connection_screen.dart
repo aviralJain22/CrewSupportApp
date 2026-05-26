@@ -201,7 +201,7 @@ class ConnectionScreen extends GetView<ConnectionController> {
           SizedBox(width: 2.5.w),
           Text(
             title,
-            style: GoogleFonts.playfairDisplay(
+            style: GoogleFonts.cinzel(
               fontSize: 16.spV2,
               fontWeight: FontWeight.w700,
               color: Colors.white,
@@ -485,7 +485,7 @@ class ConnectionScreen extends GetView<ConnectionController> {
             ),
             SizedBox(height: 2.h),
             Text('No connections yet',
-                style: GoogleFonts.playfairDisplay(
+                style: GoogleFonts.cinzel(
                     color: Colors.white54, fontSize: 13.spV2, fontWeight: FontWeight.w600)),
             SizedBox(height: 1.h),
             Text('Accepted connections will appear here',
