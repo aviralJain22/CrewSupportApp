@@ -195,6 +195,8 @@ class _CrewSearchScreenState extends State<CrewSearchScreen> {
   AppBar get _appBar => AppBar(
         backgroundColor: _bg,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        centerTitle: true,
         leading: GestureDetector(
           onTap: Get.back,
           child: const Icon(Icons.arrow_back_ios_new_rounded,
@@ -202,11 +204,15 @@ class _CrewSearchScreenState extends State<CrewSearchScreen> {
         ),
         title: Text(
           'Find Crew',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.cinzel(
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: Colors.white,
           ),
+        ),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(color: Color(0xFF2A2520), height: 1),
         ),
         actions: [
           // Filters button with active-count badge

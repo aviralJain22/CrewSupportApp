@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../widgets/shared/app_header.dart';
 import '../../widgets/shared/filter_chip_row.dart';
 
 class FavouritesScreen extends StatefulWidget {
@@ -72,7 +72,73 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _bg,
-      appBar: AppHeader.title(screenTitle: 'Favourites'),
+      appBar: AppBar(
+        backgroundColor: _bg,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        centerTitle: true,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: GestureDetector(
+            onTap: () => Get.back(),
+            child: Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: _cardBg,
+                shape: BoxShape.circle,
+                border: Border.all(
+                    color: _gold.withValues(alpha: 0.45), width: 1.2),
+                boxShadow: [
+                  BoxShadow(
+                    color: _gold.withValues(alpha: 0.08),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: Colors.white,
+                size: 16,
+              ),
+            ),
+          ),
+        ),
+        leadingWidth: 60,
+        title: Text(
+          'Favourites',
+          style: GoogleFonts.cinzel(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: _cardBg,
+                shape: BoxShape.circle,
+                border: Border.all(
+                    color: _gold.withValues(alpha: 0.35), width: 1),
+              ),
+              child: Icon(
+                Icons.tune_rounded,
+                color: _gold.withValues(alpha: 0.7),
+                size: 16,
+              ),
+            ),
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Divider(color: _border, height: 1),
+        ),
+      ),
       body: Column(
         children: [
           Padding(
@@ -243,7 +309,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
           const SizedBox(height: 16),
           Text(
             'No Favourites',
-            style: GoogleFonts.playfairDisplay(
+            style: GoogleFonts.cinzel(
               fontSize: 20,
               fontWeight: FontWeight.w700,
               color: Colors.white,

@@ -15,17 +15,16 @@ class AppBottomNav extends StatelessWidget {
   final int messageBadge;
   final int notificationBadge;
 
+  static const _bg = Color(0xFF0E0C0A);
   static const _gold = Color(0xFFD4AF37);
-  static const _bg = Color(0xFFFFFFFF);
-  static const _selected = Color(0xFF1A2B4A);
-  static const _unselected = Color(0xFF9EA8C0);
+  static const _topBorder = Color(0xFF2A2520);
 
   static const _items = [
     _NavItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'Home'),
-    _NavItem(icon: Icons.search_outlined, activeIcon: Icons.search_rounded, label: 'Search'),
-    _NavItem(icon: Icons.group_outlined, activeIcon: Icons.group_rounded, label: 'Crew'),
-    _NavItem(icon: Icons.chat_bubble_outline_rounded, activeIcon: Icons.chat_bubble_rounded, label: 'Messages'),
+    _NavItem(icon: Icons.group_outlined, activeIcon: Icons.group_rounded, label: 'Connections'),
     _NavItem(icon: Icons.person_outline_rounded, activeIcon: Icons.person_rounded, label: 'Profile'),
+    _NavItem(icon: Icons.notifications_none_rounded, activeIcon: Icons.notifications_rounded, label: 'Alerts'),
+    _NavItem(icon: Icons.chat_bubble_outline_rounded, activeIcon: Icons.chat_bubble_rounded, label: 'Messages'),
   ];
 
   @override
@@ -33,11 +32,11 @@ class AppBottomNav extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         color: _bg,
-        border: Border(top: BorderSide(color: Color(0xFFE8E8E8), width: 1)),
+        border: Border(top: BorderSide(color: _topBorder, width: 1)),
         boxShadow: [
           BoxShadow(
-            color: Color(0x18000000),
-            blurRadius: 16,
+            color: Color(0x40000000),
+            blurRadius: 20,
             offset: Offset(0, -4),
           ),
         ],
@@ -45,15 +44,15 @@ class AppBottomNav extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 60,
+          height: 62,
           child: Row(
             children: List.generate(_items.length, (i) {
               final item = _items[i];
               final selected = i == currentIndex;
               final badge = i == 3
-                  ? messageBadge
+                  ? notificationBadge
                   : i == 4
-                      ? notificationBadge
+                      ? messageBadge
                       : 0;
               return Expanded(
                 child: GestureDetector(
@@ -62,17 +61,18 @@ class AppBottomNav extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildIconWithPill(item, selected, badge),
-                      const SizedBox(height: 3),
-                      Text(
-                        item.label,
+                      _buildIcon(item, selected, badge),
+                      const SizedBox(height: 4),
+                      AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 180),
                         style: GoogleFonts.inter(
                           fontSize: 10,
                           fontWeight: selected
                               ? FontWeight.w600
                               : FontWeight.w400,
-                          color: selected ? _selected : _unselected,
+                          color: selected ? _gold : Colors.white38,
                         ),
+                        child: Text(item.label),
                       ),
                     ],
                   ),
@@ -85,8 +85,7 @@ class AppBottomNav extends StatelessWidget {
     );
   }
 
-  Widget _buildIconWithPill(
-      _NavItem item, bool selected, int badge) {
+  Widget _buildIcon(_NavItem item, bool selected, int badge) {
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -97,19 +96,19 @@ class AppBottomNav extends StatelessWidget {
             vertical: 5,
           ),
           decoration: BoxDecoration(
-            color: selected ? _gold.withValues(alpha: 0.12) : Colors.transparent,
+            color: selected ? _gold.withValues(alpha: 0.14) : Colors.transparent,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Icon(
             selected ? item.activeIcon : item.icon,
-            color: selected ? _selected : _unselected,
+            color: selected ? _gold : Colors.white38,
             size: 22,
           ),
         ),
         if (badge > 0)
           Positioned(
-            top: -3,
-            right: -3,
+            top: -2,
+            right: -2,
             child: Container(
               width: 16,
               height: 16,
@@ -138,8 +137,9 @@ class _NavItem {
   final IconData icon;
   final IconData activeIcon;
   final String label;
-  const _NavItem(
-      {required this.icon,
-      required this.activeIcon,
-      required this.label});
+  const _NavItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+  });
 }

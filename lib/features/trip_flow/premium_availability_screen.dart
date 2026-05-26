@@ -117,7 +117,7 @@ class _PremiumAvailabilityScreenState
         elevation: 0,
         title: Text(
           'Availability',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.cinzel(
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: Colors.white,
@@ -564,7 +564,7 @@ class _PremiumAvailabilityScreenState
             ),
             title: Text(
               'Delete slot?',
-              style: GoogleFonts.playfairDisplay(color: Colors.white),
+              style: GoogleFonts.cinzel(color: Colors.white),
             ),
             content: Text(
               'This availability window will be permanently removed.',

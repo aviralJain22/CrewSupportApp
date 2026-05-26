@@ -43,7 +43,7 @@ class EmptyState extends StatelessWidget {
             Text(
               title,
               textAlign: TextAlign.center,
-              style: GoogleFonts.playfairDisplay(
+              style: GoogleFonts.cinzel(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,

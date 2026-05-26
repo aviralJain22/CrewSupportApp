@@ -149,7 +149,7 @@ class _PremiumHomeScreenState extends State<PremiumHomeScreen> {
               children: [
                 Text(
                   'Choose\nyour jet',
-                  style: GoogleFonts.playfairDisplay(
+                  style: GoogleFonts.cinzel(
                     fontSize: 26.spV2,
                     fontWeight: FontWeight.w700,
                     color: _gold,
@@ -160,7 +160,7 @@ class _PremiumHomeScreenState extends State<PremiumHomeScreen> {
                 SizedBox(height: 1.2.h),
                 Text(
                   'Select the perfect aircraft\nfor your journey',
-                  style: TextStyle(
+                  style: GoogleFonts.inter(
                     color: Colors.white.withValues(alpha: 0.55),
                     fontSize: 9.spV2,
                     height: 1.55,
@@ -294,12 +294,12 @@ class _PremiumHomeScreenState extends State<PremiumHomeScreen> {
   Widget _miniInput({required TextEditingController ctrl, required String hint, required IconData icon}) {
     return TextField(
       controller: ctrl,
-      style: TextStyle(color: Colors.white, fontSize: 10.spV2),
+      style: GoogleFonts.inter(color: Colors.white, fontSize: 10.spV2),
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: _gold.withValues(alpha: 0.65), size: 14.sp),
         prefixIconConstraints: const BoxConstraints(minWidth: 32, minHeight: 32),
         hintText: hint,
-        hintStyle: TextStyle(color: Colors.white30, fontSize: 10.spV2),
+        hintStyle: GoogleFonts.inter(color: Colors.white30, fontSize: 10.spV2),
         filled: true,
         fillColor: _inputBg,
         contentPadding: EdgeInsets.symmetric(vertical: 1.2.h, horizontal: 2.w),
@@ -329,14 +329,14 @@ class _PremiumHomeScreenState extends State<PremiumHomeScreen> {
         children: [
           Text(
             'Available Aircraft',
-            style: GoogleFonts.playfairDisplay(
+            style: GoogleFonts.cinzel(
               fontSize: 16.spV2,
               fontWeight: FontWeight.w700,
               color: Colors.white,
             ),
           ),
           Text('${_jets.length} types',
-              style: TextStyle(color: _gold.withValues(alpha: 0.7), fontSize: 9.spV2)),
+              style: GoogleFonts.inter(color: _gold.withValues(alpha: 0.7), fontSize: 9.spV2)),
         ],
       ),
     );
@@ -446,7 +446,7 @@ class _PremiumHomeScreenState extends State<PremiumHomeScreen> {
               Expanded(
                 child: Text(
                   jet.name,
-                  style: GoogleFonts.playfairDisplay(
+                  style: GoogleFonts.cinzel(
                     fontSize: 13.spV2,
                     fontWeight: FontWeight.w600,
                     color: _gold,
@@ -462,13 +462,13 @@ class _PremiumHomeScreenState extends State<PremiumHomeScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(jet.rating.toStringAsFixed(1),
-                          style: TextStyle(color: Colors.white70, fontSize: 9.spV2, fontWeight: FontWeight.w600)),
+                          style: GoogleFonts.inter(color: Colors.white70, fontSize: 9.spV2, fontWeight: FontWeight.w600)),
                       SizedBox(width: 0.8.w),
                       Icon(Icons.star_rounded, color: _gold, size: 11.sp),
                     ],
                   ),
                   Text(jet.price,
-                      style: TextStyle(color: _gold, fontSize: 9.spV2, fontWeight: FontWeight.w700)),
+                      style: GoogleFonts.inter(color: _gold, fontSize: 9.spV2, fontWeight: FontWeight.w700)),
                 ],
               ),
             ],
@@ -478,7 +478,7 @@ class _PremiumHomeScreenState extends State<PremiumHomeScreen> {
           Expanded(
             child: Text(
               jet.description,
-              style: TextStyle(color: Colors.white54, fontSize: 8.5.spV2, height: 1.4),
+              style: GoogleFonts.inter(color: Colors.white54, fontSize: 8.5.spV2, height: 1.4),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -508,7 +508,7 @@ class _PremiumHomeScreenState extends State<PremiumHomeScreen> {
         Icon(icon, color: _gold.withValues(alpha: 0.75), size: 10.sp),
         SizedBox(width: 1.w),
         Text(label,
-            style: TextStyle(
+            style: GoogleFonts.inter(
                 color: Colors.white54,
                 fontSize: 8.5.spV2,
                 fontWeight: FontWeight.w500)),
@@ -530,7 +530,7 @@ class _PremiumHomeScreenState extends State<PremiumHomeScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text('Select',
-                style: TextStyle(
+                style: GoogleFonts.inter(
                     color: _gold,
                     fontSize: 9.spV2,
                     fontWeight: FontWeight.w600)),
@@ -578,13 +578,13 @@ class _PremiumHomeScreenState extends State<PremiumHomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Need help choosing?',
-                          style: TextStyle(
+                          style: GoogleFonts.inter(
                               color: Colors.white,
                               fontSize: 11.spV2,
                               fontWeight: FontWeight.w600)),
                       SizedBox(height: 0.3.h),
                       Text('Our aviation experts are ready to assist',
-                          style: TextStyle(color: Colors.white38, fontSize: 8.5.spV2)),
+                          style: GoogleFonts.inter(color: Colors.white38, fontSize: 8.5.spV2)),
                     ],
                   ),
                 ),
@@ -592,7 +592,7 @@ class _PremiumHomeScreenState extends State<PremiumHomeScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text('Contact our expert',
-                        style: TextStyle(
+                        style: GoogleFonts.inter(
                             color: _gold, fontSize: 9.spV2, fontWeight: FontWeight.w600)),
                     SizedBox(width: 1.w),
                     Icon(Icons.arrow_forward_rounded, color: _gold, size: 12.sp),

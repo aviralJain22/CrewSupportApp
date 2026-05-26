@@ -11,7 +11,7 @@ class AppRoot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Sizer( 
+    return Sizer(
       builder: (context, orientation, screenType) {
         return GetMaterialApp(
           debugShowCheckedModeBanner: false,
@@ -31,9 +31,9 @@ class AppRoot extends StatelessWidget {
 
             // Disable system text scaling (iOS Text Size / Accessibility)
             return MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                textScaler: TextScaler.noScaling,
-              ),
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: TextScaler.noScaling),
               child: builtChild,
             );
           },

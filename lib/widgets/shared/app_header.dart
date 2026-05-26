@@ -82,7 +82,7 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
               ),
               Text(
                 name ?? 'Aviator',
-                style: GoogleFonts.playfairDisplay(
+                style: GoogleFonts.cinzel(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
@@ -121,7 +121,7 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
         const SizedBox(width: 14),
         Text(
           title ?? '',
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.cinzel(
             fontSize: 20,
             fontWeight: FontWeight.w600,
             color: Colors.white,
