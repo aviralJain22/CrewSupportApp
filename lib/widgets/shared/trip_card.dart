@@ -261,53 +261,58 @@ class TripCard extends StatelessWidget {
     final dateLine2 = parts.length > 1 ? parts.last.trim() : '';
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        _metaItem(Icons.calendar_today_outlined, dateLine1, dateLine2),
+        _metaIcon(Icons.calendar_today_outlined),
+        const SizedBox(width: 4),
+        Flexible(
+          flex: 2,
+          child: _metaTexts(dateLine1, dateLine2),
+        ),
         if (aircraft != null) ...[
-          const SizedBox(width: 10),
-          _metaItem(Icons.airplanemode_active_rounded,
-              aircraft!, tailNumber ?? ''),
+          const SizedBox(width: 8),
+          _metaIcon(Icons.airplanemode_active_rounded),
+          const SizedBox(width: 4),
+          Flexible(
+            flex: 2,
+            child: _metaTexts(aircraft!, tailNumber ?? ''),
+          ),
         ],
         if (crewMax > 0) ...[
-          const SizedBox(width: 10),
-          _metaItem(Icons.people_alt_outlined,
-              '$crewFilled / $crewMax', 'Crew'),
+          const SizedBox(width: 8),
+          _metaIcon(Icons.people_alt_outlined),
+          const SizedBox(width: 4),
+          Text('$crewFilled / $crewMax',
+              style: GoogleFonts.inter(
+                  fontSize: 10, color: Colors.white70, height: 1.25)),
         ],
-        const Spacer(),
-        if (avatarSeeds.isNotEmpty) _buildAvatarStack(),
+        if (avatarSeeds.isNotEmpty) ...[
+          const Spacer(),
+          _buildAvatarStack(),
+        ],
       ],
     );
   }
 
-  Widget _metaItem(IconData icon, String line1, String line2) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+  Widget _metaIcon(IconData icon) => Icon(icon,
+      color: _gold.withValues(alpha: 0.65), size: 12);
+
+  Widget _metaTexts(String line1, String line2) {
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 1),
-          child: Icon(icon,
-              color: _gold.withValues(alpha: 0.65), size: 12),
-        ),
-        const SizedBox(width: 4),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(line1,
-                style: GoogleFonts.inter(
-                    fontSize: 10,
-                    color: Colors.white70,
-                    height: 1.25)),
-            if (line2.isNotEmpty)
-              Text(line2,
-                  style: GoogleFonts.inter(
-                      fontSize: 9.5,
-                      color: Colors.white38,
-                      height: 1.25)),
-          ],
-        ),
+        Text(line1,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.inter(
+                fontSize: 10, color: Colors.white70, height: 1.25)),
+        if (line2.isNotEmpty)
+          Text(line2,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.inter(
+                  fontSize: 9.5, color: Colors.white38, height: 1.25)),
       ],
     );
   }

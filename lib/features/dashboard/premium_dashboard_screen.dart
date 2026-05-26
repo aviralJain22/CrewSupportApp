@@ -65,9 +65,7 @@ const _mockTrips = [
     status: TripStatus.confirmed,
     aircraft: 'Challenger 350',
     tailNumber: 'N650GD',
-    crewList: [
-      _CrewMember('James M.', 'Captain'),
-    ],
+    crewList: [_CrewMember('James M.', 'Captain')],
     crewMax: 3,
     avatarSeeds: [5],
   ),
@@ -124,16 +122,13 @@ const _mockTrips = [
     status: TripStatus.active,
     aircraft: 'Citation X',
     tailNumber: 'N450CX',
-    crewList: [
-      _CrewMember('Alex R.', 'Captain'),
-    ],
+    crewList: [_CrewMember('Alex R.', 'Captain')],
     crewMax: 3,
     avatarSeeds: [12],
     isPast: true,
     isRated: false,
   ),
 ];
-
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
@@ -147,13 +142,19 @@ class PremiumDashboardScreen extends StatefulWidget {
 class _PremiumDashboardScreenState extends State<PremiumDashboardScreen> {
   static const _bg = Color(0xFF0C0A08);
   static const _gold = Color(0xFFD4AF37);
-  static const _cardBg = Color(0xFF181410);
   static const _border = Color(0xFF2A2520);
 
   String _activeFilter = 'All';
   String _searchQuery = '';
 
-  static const _filters = ['All', 'Current', 'Future', 'Pending', 'Draft', 'History'];
+  static const _filters = [
+    'All',
+    'Current',
+    'Future',
+    'Pending',
+    'Draft',
+    'History',
+  ];
 
   List<_MockTrip> get _filtered {
     return _mockTrips.where((t) {
@@ -168,9 +169,9 @@ class _PremiumDashboardScreenState extends State<PremiumDashboardScreen> {
       }
       return switch (_activeFilter) {
         'Current' => t.status == TripStatus.active && !t.isPast,
-        'Future'  => t.status == TripStatus.confirmed && !t.isPast,
+        'Future' => t.status == TripStatus.confirmed && !t.isPast,
         'Pending' => t.status == TripStatus.pending && !t.isPast,
-        'Draft'   => t.status == TripStatus.draft,
+        'Draft' => t.status == TripStatus.draft,
         'History' => t.isPast,
         _ => true,
       };
@@ -188,72 +189,202 @@ class _PremiumDashboardScreenState extends State<PremiumDashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _bg,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildMainHeader(),
-            _buildGreetingSection(),
-            const SizedBox(height: 16),
-            _buildSearchAndFilter(),
-            const SizedBox(height: 20),
-            Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 220),
-                switchInCurve: Curves.easeOut,
-                switchOutCurve: Curves.easeIn,
-                transitionBuilder: (child, anim) =>
-                    FadeTransition(opacity: anim, child: child),
-                child: KeyedSubtree(
-                  key: ValueKey(_activeFilter),
-                  child: _buildBody(),
-                ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeroBanner(context),
+          const SizedBox(height: 20),
+          Expanded(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 220),
+              switchInCurve: Curves.easeOut,
+              switchOutCurve: Curves.easeIn,
+              transitionBuilder: (child, anim) =>
+                  FadeTransition(opacity: anim, child: child),
+              child: KeyedSubtree(
+                key: ValueKey(_activeFilter),
+                child: _buildBody(),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       floatingActionButton: _buildFAB(),
     );
   }
 
-  // ── Main header: avatar | CREW SUPPORT logo | bell + heart ───────────────────
+  // ── Hero banner: jet image bg + gradient overlay + header + greeting ─────────
 
-  Widget _buildMainHeader() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
-      decoration: BoxDecoration(
-        color: _cardBg,
-        border: Border(bottom: BorderSide(color: _border)),
-      ),
-      child: Row(
-        children: [
-          _buildProfileCircle(),
-          Expanded(child: _buildLogo()),
-          _iconBtn(Icons.favorite_border_rounded, () {}),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProfileCircle() {
+  Widget _buildHeroBanner(BuildContext context) {
+    final topPad = MediaQuery.of(context).padding.top;
+    final name = UserSession.instance.firstName.isNotEmpty
+        ? UserSession.instance.firstName.toUpperCase()
+        : 'CAPTAIN';
     final initials = UserSession.instance.initials;
+
     return Container(
-      width: 38,
-      height: 38,
+      width: double.infinity,
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: _gold.withValues(alpha: 0.6), width: 1.5),
-        color: const Color(0xFF2A2520),
+        image: const DecorationImage(
+          image: AssetImage('assets/images/hero_jet.jpeg'),
+          fit: BoxFit.cover,
+          alignment: Alignment.center,
+        ),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
       ),
-      child: Center(
-        child: Text(
-          initials,
-          style: GoogleFonts.inter(
-            color: _gold,
-            fontWeight: FontWeight.w700,
-            fontSize: initials.length > 1 ? 12 : 15,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.vertical(
+            bottom: Radius.circular(24),
           ),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: const [0.0, 0.35, 0.7, 1.0],
+            colors: [
+              const Color(0xFF0C0A08).withValues(alpha: 0.82),
+              const Color(0xFF0C0A08).withValues(alpha: 0.45),
+              const Color(0xFF0C0A08).withValues(alpha: 0.65),
+              const Color(0xFF0C0A08).withValues(alpha: 0.92),
+            ],
+          ),
+        ),
+        padding: EdgeInsets.fromLTRB(20, topPad + 14, 20, 28),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Top row: avatar | logo | heart ──────────────────────────────
+            Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: _gold.withValues(alpha: 0.6),
+                      width: 1.5,
+                    ),
+                    color: const Color(0xFF2A2520).withValues(alpha: 0.8),
+                  ),
+                  child: Center(
+                    child: Text(
+                      initials,
+                      style: GoogleFonts.inter(
+                        color: _gold,
+                        fontWeight: FontWeight.w700,
+                        fontSize: initials.length > 1 ? 12 : 15,
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(child: _buildLogo()),
+                _iconBtn(Icons.favorite_border_rounded, () {}),
+              ],
+            ),
+            const SizedBox(height: 28),
+            // ── Greeting + invite ────────────────────────────────────────────
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _greeting,
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: Colors.white60,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withValues(alpha: 0.6),
+                              blurRadius: 8,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        '$name ✈',
+                        style: GoogleFonts.cinzel(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          height: 1.1,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withValues(alpha: 0.7),
+                              blurRadius: 12,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        'Manage your trips and connect with crew.',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: Colors.white54,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withValues(alpha: 0.5),
+                              blurRadius: 6,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                GestureDetector(
+                  onTap: () => Get.toNamed(AppRoutes.crewSearch),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _gold.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: _gold.withValues(alpha: 0.55)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _gold.withValues(alpha: 0.2),
+                          blurRadius: 12,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.person_add_alt_1_rounded,
+                          color: _gold,
+                          size: 15,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Invite Crew',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: _gold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            // ── Search + filter inside banner ────────────────────────────────
+            _buildSearchAndFilter(),
+          ],
         ),
       ),
     );
@@ -262,7 +393,6 @@ class _PremiumDashboardScreenState extends State<PremiumDashboardScreen> {
   Widget _buildLogo() {
     return Column(
       children: [
-        // Wings row
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -296,7 +426,9 @@ class _PremiumDashboardScreenState extends State<PremiumDashboardScreen> {
         final width = reverse ? (6.0 + i * 4) : (14.0 - i * 4);
         return Padding(
           padding: EdgeInsets.only(
-              left: reverse ? 2 : 0, right: reverse ? 0 : 2),
+            left: reverse ? 2 : 0,
+            right: reverse ? 0 : 2,
+          ),
           child: Container(
             width: width.clamp(6.0, 14.0),
             height: 1.5,
@@ -304,89 +436,6 @@ class _PremiumDashboardScreenState extends State<PremiumDashboardScreen> {
           ),
         );
       }),
-    );
-  }
-
-  // ── Greeting + Invite Crew ───────────────────────────────────────────────────
-
-  Widget _buildGreetingSection() {
-    final name = UserSession.instance.firstName.isNotEmpty
-        ? UserSession.instance.firstName.toUpperCase()
-        : 'CAPTAIN';
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _greeting,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: Colors.white54,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  '$name ✈',
-                  style: GoogleFonts.cinzel(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    height: 1.1,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  'Manage your trips and connect with crew.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: Colors.white38,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          GestureDetector(
-            onTap: () => Get.toNamed(AppRoutes.crewSearch),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    _gold.withValues(alpha: 0.18),
-                    _gold.withValues(alpha: 0.08),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: _gold.withValues(alpha: 0.4)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.person_add_alt_1_rounded,
-                      color: _gold, size: 15),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Invite Crew',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: _gold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -409,18 +458,26 @@ class _PremiumDashboardScreenState extends State<PremiumDashboardScreen> {
               child: Row(
                 children: [
                   const SizedBox(width: 14),
-                  const Icon(Icons.search_rounded,
-                      color: Colors.white38, size: 20),
+                  const Icon(
+                    Icons.search_rounded,
+                    color: Colors.white38,
+                    size: 20,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: TextField(
                       onChanged: (v) => setState(() => _searchQuery = v),
-                      style: GoogleFonts.inter(fontSize: 14, color: Colors.white),
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        color: Colors.white,
+                      ),
                       cursorColor: _gold,
                       decoration: InputDecoration(
                         hintText: 'Search trips, routes…',
                         hintStyle: GoogleFonts.inter(
-                            fontSize: 14, color: Colors.white30),
+                          fontSize: 14,
+                          color: Colors.white30,
+                        ),
                         border: InputBorder.none,
                         contentPadding: EdgeInsets.zero,
                       ),
@@ -451,9 +508,11 @@ class _PremiumDashboardScreenState extends State<PremiumDashboardScreen> {
                       width: isFiltered ? 1.5 : 1,
                     ),
                   ),
-                  child: Icon(Icons.tune_rounded,
-                      size: 20,
-                      color: isFiltered ? _gold : Colors.white38),
+                  child: Icon(
+                    Icons.tune_rounded,
+                    size: 20,
+                    color: isFiltered ? _gold : Colors.white38,
+                  ),
                 ),
                 if (isFiltered)
                   Positioned(
@@ -463,7 +522,9 @@ class _PremiumDashboardScreenState extends State<PremiumDashboardScreen> {
                       width: 10,
                       height: 10,
                       decoration: const BoxDecoration(
-                          color: _gold, shape: BoxShape.circle),
+                        color: _gold,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   ),
               ],
@@ -538,7 +599,9 @@ class _PremiumDashboardScreenState extends State<PremiumDashboardScreen> {
   }
 
   Widget _buildTripsLabel() {
-    final label = _activeFilter == 'All' ? 'YOUR TRIPS' : _activeFilter.toUpperCase();
+    final label = _activeFilter == 'All'
+        ? 'YOUR TRIPS'
+        : _activeFilter.toUpperCase();
     return Row(
       children: [
         Text(
@@ -568,18 +631,34 @@ class _PremiumDashboardScreenState extends State<PremiumDashboardScreen> {
 
   Widget _buildEmptyForFilter() {
     final Map<String, (IconData, String, String)> config = {
-      'Current': (Icons.flight_takeoff_rounded, 'No active trips',
-          'Your current flights will appear here.'),
-      'Future': (Icons.event_available_rounded, 'Nothing scheduled',
-          'Book upcoming trips and they\'ll show here.'),
-      'Pending': (Icons.hourglass_empty_rounded, 'No pending trips',
-          'Trips awaiting crew confirmation appear here.'),
-      'Draft': (Icons.edit_note_rounded, 'No drafts saved',
-          'Start a trip and save it as a draft.'),
-      'History': (Icons.history_rounded, 'No past trips',
-          'Completed trips will be recorded here.'),
+      'Current': (
+        Icons.flight_takeoff_rounded,
+        'No active trips',
+        'Your current flights will appear here.',
+      ),
+      'Future': (
+        Icons.event_available_rounded,
+        'Nothing scheduled',
+        'Book upcoming trips and they\'ll show here.',
+      ),
+      'Pending': (
+        Icons.hourglass_empty_rounded,
+        'No pending trips',
+        'Trips awaiting crew confirmation appear here.',
+      ),
+      'Draft': (
+        Icons.edit_note_rounded,
+        'No drafts saved',
+        'Start a trip and save it as a draft.',
+      ),
+      'History': (
+        Icons.history_rounded,
+        'No past trips',
+        'Completed trips will be recorded here.',
+      ),
     };
-    final c = config[_activeFilter] ??
+    final c =
+        config[_activeFilter] ??
         (Icons.airplanemode_off_rounded, 'No trips', 'Nothing to show here.');
     return EmptyState(
       icon: c.$1,
@@ -611,7 +690,11 @@ class _PremiumDashboardScreenState extends State<PremiumDashboardScreen> {
             ),
           ],
         ),
-        child: const Icon(Icons.add_rounded, color: Color(0xFF0C0A08), size: 28),
+        child: const Icon(
+          Icons.add_rounded,
+          color: Color(0xFF0C0A08),
+          size: 28,
+        ),
       ),
     );
   }
@@ -769,7 +852,10 @@ class _StatusFilterSheetState extends State<_StatusFilterSheet> {
                     Text(
                       desc,
                       style: GoogleFonts.inter(
-                          fontSize: 11, color: Colors.white38, height: 1.4),
+                        fontSize: 11,
+                        color: Colors.white38,
+                        height: 1.4,
+                      ),
                     ),
                   ],
                 ],
@@ -828,7 +914,11 @@ class _TripDetailSheetState extends State<_TripDetailSheet> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.fromLTRB(
-          20, 0, 20, MediaQuery.of(context).padding.bottom + 28),
+        20,
+        0,
+        20,
+        MediaQuery.of(context).padding.bottom + 28,
+      ),
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -881,14 +971,16 @@ class _TripDetailSheetState extends State<_TripDetailSheet> {
                   child: Row(
                     children: [
                       Container(
-                          width: 20,
-                          height: 1,
-                          color: _gold.withValues(alpha: 0.4)),
+                        width: 20,
+                        height: 1,
+                        color: _gold.withValues(alpha: 0.4),
+                      ),
                       const Icon(Icons.flight, size: 18, color: _gold),
                       Container(
-                          width: 20,
-                          height: 1,
-                          color: _gold.withValues(alpha: 0.4)),
+                        width: 20,
+                        height: 1,
+                        color: _gold.withValues(alpha: 0.4),
+                      ),
                     ],
                   ),
                 ),
@@ -910,15 +1002,17 @@ class _TripDetailSheetState extends State<_TripDetailSheet> {
                 Container(
                   width: 6,
                   height: 6,
-                  decoration:
-                      BoxDecoration(color: sc, shape: BoxShape.circle),
+                  decoration: BoxDecoration(color: sc, shape: BoxShape.circle),
                 ),
                 const SizedBox(width: 5),
-                Text(sl,
-                    style: GoogleFonts.inter(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: sc)),
+                Text(
+                  sl,
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: sc,
+                  ),
+                ),
               ],
             ),
           ),
@@ -931,15 +1025,19 @@ class _TripDetailSheetState extends State<_TripDetailSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(code,
-            style: GoogleFonts.cinzel(
-                fontSize: 26,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                height: 1)),
-        Text(city,
-            style:
-                GoogleFonts.inter(fontSize: 11, color: Colors.white38)),
+        Text(
+          code,
+          style: GoogleFonts.cinzel(
+            fontSize: 26,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+            height: 1,
+          ),
+        ),
+        Text(
+          city,
+          style: GoogleFonts.inter(fontSize: 11, color: Colors.white38),
+        ),
       ],
     );
   }
@@ -967,15 +1065,19 @@ class _TripDetailSheetState extends State<_TripDetailSheet> {
       children: [
         Icon(icon, size: 15, color: _gold.withValues(alpha: 0.7)),
         const SizedBox(width: 10),
-        Text('$label  ',
-            style:
-                GoogleFonts.inter(fontSize: 12, color: Colors.white38)),
+        Text(
+          '$label  ',
+          style: GoogleFonts.inter(fontSize: 12, color: Colors.white38),
+        ),
         Expanded(
-          child: Text(value,
-              style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500)),
+          child: Text(
+            value,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ),
       ],
     );
@@ -991,25 +1093,34 @@ class _TripDetailSheetState extends State<_TripDetailSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('CREW',
-                  style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: _gold.withValues(alpha: 0.7),
-                      letterSpacing: 1.4)),
+              Text(
+                'CREW',
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: _gold.withValues(alpha: 0.7),
+                  letterSpacing: 1.4,
+                ),
+              ),
               if (!t.isPast)
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
                   child: Row(
                     children: [
-                      Icon(Icons.add_circle_outline_rounded,
-                          size: 14, color: _gold),
+                      Icon(
+                        Icons.add_circle_outline_rounded,
+                        size: 14,
+                        color: _gold,
+                      ),
                       const SizedBox(width: 4),
-                      Text('Add Crew',
-                          style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: _gold,
-                              fontWeight: FontWeight.w600)),
+                      Text(
+                        'Add Crew',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: _gold,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -1028,7 +1139,10 @@ class _TripDetailSheetState extends State<_TripDetailSheet> {
               child: Text(
                 'No crew assigned yet. Tap + Add Crew to send requests.',
                 style: GoogleFonts.inter(
-                    fontSize: 12, color: Colors.white38, height: 1.5),
+                  fontSize: 12,
+                  color: Colors.white38,
+                  height: 1.5,
+                ),
               ),
             )
           else
@@ -1053,40 +1167,46 @@ class _TripDetailSheetState extends State<_TripDetailSheet> {
             width: 34,
             height: 34,
             decoration: const BoxDecoration(
-                shape: BoxShape.circle, color: Color(0xFF2A2520)),
+              shape: BoxShape.circle,
+              color: Color(0xFF2A2520),
+            ),
             child: Center(
               child: Text(
-                member.name.isNotEmpty
-                    ? member.name[0].toUpperCase()
-                    : '?',
+                member.name.isNotEmpty ? member.name[0].toUpperCase() : '?',
                 style: GoogleFonts.inter(
-                    color: _gold,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13),
+                  color: _gold,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                ),
               ),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(member.name,
-                style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500)),
+            child: Text(
+              member.name,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
               color: _gold.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(5),
               border: Border.all(color: _gold.withValues(alpha: 0.25)),
             ),
-            child: Text(member.role,
-                style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: _gold)),
+            child: Text(
+              member.role,
+              style: GoogleFonts.inter(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: _gold,
+              ),
+            ),
           ),
         ],
       ),
@@ -1099,64 +1219,92 @@ class _TripDetailSheetState extends State<_TripDetailSheet> {
     if (t.isPast) {
       if (!t.isRated) {
         return _goldBtn(
-            'Rate Crew',
-            Icons.star_border_rounded,
-            () => Navigator.pop(context));
+          'Rate Crew',
+          Icons.star_border_rounded,
+          () => Navigator.pop(context),
+        );
       }
       return Center(
-        child: Text('Trip completed & rated',
-            style: GoogleFonts.inter(fontSize: 13, color: Colors.white38)),
+        child: Text(
+          'Trip completed & rated',
+          style: GoogleFonts.inter(fontSize: 13, color: Colors.white38),
+        ),
       );
     }
 
     return switch (t.status) {
       TripStatus.active => Column(
-          children: [
-            _isCompleted
-                ? _completedBadge()
-                : _goldBtn(
-                    _isCompleting ? 'Completing…' : 'Mark as Complete',
-                    Icons.check_circle_outline_rounded,
-                    _isCompleting
-                        ? null
-                        : () async {
-                            setState(() => _isCompleting = true);
-                            await Future.delayed(
-                                const Duration(milliseconds: 1200));
-                            setState(() {
-                              _isCompleting = false;
-                              _isCompleted = true;
-                            });
-                            await Future.delayed(
-                                const Duration(milliseconds: 700));
-                            if (context.mounted) Navigator.pop(context);
-                          },
-                  ),
-            const SizedBox(height: 10),
-            _outlineBtn('Cancel Trip', Icons.close_rounded, _red,
-                () => Navigator.pop(context)),
-          ],
-        ),
+        children: [
+          _isCompleted
+              ? _completedBadge()
+              : _goldBtn(
+                  _isCompleting ? 'Completing…' : 'Mark as Complete',
+                  Icons.check_circle_outline_rounded,
+                  _isCompleting
+                      ? null
+                      : () async {
+                          setState(() => _isCompleting = true);
+                          await Future.delayed(
+                            const Duration(milliseconds: 1200),
+                          );
+                          setState(() {
+                            _isCompleting = false;
+                            _isCompleted = true;
+                          });
+                          await Future.delayed(
+                            const Duration(milliseconds: 700),
+                          );
+                          if (context.mounted) Navigator.pop(context);
+                        },
+                ),
+          const SizedBox(height: 10),
+          _outlineBtn(
+            'Cancel Trip',
+            Icons.close_rounded,
+            _red,
+            () => Navigator.pop(context),
+          ),
+        ],
+      ),
       TripStatus.confirmed => Column(
-          children: [
-            _outlineBtn('Edit Dates', Icons.edit_calendar_outlined, _gold,
-                () => Navigator.pop(context)),
-            const SizedBox(height: 10),
-            _outlineBtn('Cancel Trip', Icons.close_rounded, _red,
-                () => Navigator.pop(context)),
-          ],
-        ),
-      TripStatus.pending => _outlineBtn('Cancel Trip', Icons.close_rounded,
-          _red, () => Navigator.pop(context)),
+        children: [
+          _outlineBtn(
+            'Edit Dates',
+            Icons.edit_calendar_outlined,
+            _gold,
+            () => Navigator.pop(context),
+          ),
+          const SizedBox(height: 10),
+          _outlineBtn(
+            'Cancel Trip',
+            Icons.close_rounded,
+            _red,
+            () => Navigator.pop(context),
+          ),
+        ],
+      ),
+      TripStatus.pending => _outlineBtn(
+        'Cancel Trip',
+        Icons.close_rounded,
+        _red,
+        () => Navigator.pop(context),
+      ),
       TripStatus.draft => Column(
-          children: [
-            _goldBtn('Post Trip', Icons.send_rounded,
-                () => Navigator.pop(context)),
-            const SizedBox(height: 10),
-            _outlineBtn('Delete Draft', Icons.delete_outline_rounded, _red,
-                () => Navigator.pop(context)),
-          ],
-        ),
+        children: [
+          _goldBtn(
+            'Post Trip',
+            Icons.send_rounded,
+            () => Navigator.pop(context),
+          ),
+          const SizedBox(height: 10),
+          _outlineBtn(
+            'Delete Draft',
+            Icons.delete_outline_rounded,
+            _red,
+            () => Navigator.pop(context),
+          ),
+        ],
+      ),
     };
   }
 
@@ -1174,11 +1322,14 @@ class _TripDetailSheetState extends State<_TripDetailSheet> {
         children: [
           const Icon(Icons.check_circle_rounded, color: _green, size: 18),
           const SizedBox(width: 8),
-          Text('Trip Completed!',
-              style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: _green)),
+          Text(
+            'Trip Completed!',
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: _green,
+            ),
+          ),
         ],
       ),
     );
@@ -1193,8 +1344,7 @@ class _TripDetailSheetState extends State<_TripDetailSheet> {
         height: 52,
         decoration: BoxDecoration(
           gradient: onTap != null
-              ? const LinearGradient(
-                  colors: [Color(0xFFE8C547), _gold])
+              ? const LinearGradient(colors: [Color(0xFFE8C547), _gold])
               : null,
           color: onTap == null ? const Color(0xFF2A2520) : null,
           borderRadius: BorderRadius.circular(12),
@@ -1202,19 +1352,20 @@ class _TripDetailSheetState extends State<_TripDetailSheet> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon,
-                size: 18,
-                color: onTap != null
-                    ? const Color(0xFF0C0A08)
-                    : Colors.white38),
+            Icon(
+              icon,
+              size: 18,
+              color: onTap != null ? const Color(0xFF0C0A08) : Colors.white38,
+            ),
             const SizedBox(width: 8),
-            Text(label,
-                style: GoogleFonts.inter(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: onTap != null
-                        ? const Color(0xFF0C0A08)
-                        : Colors.white38)),
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: onTap != null ? const Color(0xFF0C0A08) : Colors.white38,
+              ),
+            ),
           ],
         ),
       ),
@@ -1222,7 +1373,11 @@ class _TripDetailSheetState extends State<_TripDetailSheet> {
   }
 
   Widget _outlineBtn(
-      String label, IconData icon, Color color, VoidCallback onTap) {
+    String label,
+    IconData icon,
+    Color color,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -1238,11 +1393,14 @@ class _TripDetailSheetState extends State<_TripDetailSheet> {
           children: [
             Icon(icon, size: 17, color: color),
             const SizedBox(width: 8),
-            Text(label,
-                style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: color)),
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+            ),
           ],
         ),
       ),
