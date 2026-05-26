@@ -1,3 +1,4 @@
+import 'package:crew_support/utils/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -45,11 +46,16 @@ class CrewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cardPad = AppSpacing.cardPadding(context);
+    final cardBottomMargin = AppSpacing.cardMarginV(context);
+    final avatarSize = AppSpacing.avatarMd(context);
+    final avatarGap = AppSpacing.md(context);
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
+        margin: EdgeInsets.only(bottom: cardBottomMargin),
+        padding: EdgeInsets.all(cardPad),
         decoration: BoxDecoration(
           color: _cardBg,
           borderRadius: BorderRadius.circular(14),
@@ -58,21 +64,22 @@ class CrewCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _avatar,
-            const SizedBox(width: 14),
-            Expanded(child: _info),
+            _buildAvatar(context, avatarSize),
+            SizedBox(width: avatarGap),
+            Expanded(child: _buildInfo(context)),
           ],
         ),
       ),
     );
   }
 
-  Widget get _avatar {
+  Widget _buildAvatar(BuildContext context, double size) {
+    final dotSize = AppSpacing.xs(context) + 2;
     return Stack(
       children: [
         Container(
-          width: 54,
-          height: 54,
+          width: size,
+          height: size,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: const Color(0xFF2A2520),
@@ -86,17 +93,17 @@ class CrewCard extends StatelessWidget {
                 ? Image.network(
                     avatarUrl!,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, err, e) => _initials,
+                    errorBuilder: (_, err, e) => _buildInitials(context),
                   )
-                : _initials,
+                : _buildInitials(context),
           ),
         ),
         Positioned(
           bottom: 1,
           right: 1,
           child: Container(
-            width: 12,
-            height: 12,
+            width: dotSize,
+            height: dotSize,
             decoration: BoxDecoration(
               color: _availColor,
               shape: BoxShape.circle,
@@ -108,7 +115,7 @@ class CrewCard extends StatelessWidget {
     );
   }
 
-  Widget get _initials => Center(
+  Widget _buildInitials(BuildContext context) => Center(
         child: Text(
           name.isNotEmpty ? name[0].toUpperCase() : '?',
           style: GoogleFonts.inter(
@@ -119,7 +126,11 @@ class CrewCard extends StatelessWidget {
         ),
       );
 
-  Widget get _info {
+  Widget _buildInfo(BuildContext context) {
+    final roleGap = AppSpacing.xxs(context) + 1;
+    final statsGap = AppSpacing.sm(context) + 2;
+    final pillGap = AppSpacing.sm(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -136,37 +147,38 @@ class CrewCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            if (rating != null) _ratingBadge,
+            if (rating != null) _buildRatingBadge(context),
           ],
         ),
-        const SizedBox(height: 3),
+        SizedBox(height: roleGap),
         Row(
           children: [
-            _rolePill,
-            const SizedBox(width: 8),
-            _availPill,
+            _buildRolePill(context),
+            SizedBox(width: pillGap),
+            _buildAvailPill(context),
           ],
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: statsGap),
         Row(
           children: [
-            if (hours != null) _stat(Icons.flight, '${hours}h TT'),
+            if (hours != null) _buildStat(context, Icons.flight, '${hours}h TT'),
             if (distanceMi != null)
-              _stat(Icons.location_on_outlined,
+              _buildStat(context, Icons.location_on_outlined,
                   '${distanceMi!.toStringAsFixed(0)} mi'),
             if (dayRate != null)
-              _stat(Icons.attach_money, '\$${dayRate!}/day'),
+              _buildStat(context, Icons.attach_money, '\$${dayRate!}/day'),
           ],
         ),
       ],
     );
   }
 
-  Widget get _ratingBadge => Row(
+  Widget _buildRatingBadge(BuildContext context) => Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.star_rounded, size: 14, color: _gold),
-          const SizedBox(width: 2),
+          Icon(Icons.star_rounded,
+              size: AppSpacing.iconSm(context), color: _gold),
+          SizedBox(width: AppSpacing.xxs(context)),
           Text(
             rating!.toStringAsFixed(1),
             style: GoogleFonts.inter(
@@ -178,8 +190,11 @@ class CrewCard extends StatelessWidget {
         ],
       );
 
-  Widget get _rolePill => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+  Widget _buildRolePill(BuildContext context) => Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm(context),
+          vertical: AppSpacing.xxs(context),
+        ),
         decoration: BoxDecoration(
           color: _gold.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(4),
@@ -194,18 +209,18 @@ class CrewCard extends StatelessWidget {
         ),
       );
 
-  Widget get _availPill => Row(
+  Widget _buildAvailPill(BuildContext context) => Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 6,
-            height: 6,
+            width: AppSpacing.xs(context),
+            height: AppSpacing.xs(context),
             decoration: BoxDecoration(
               color: _availColor,
               shape: BoxShape.circle,
             ),
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: AppSpacing.xxs(context) + 2),
           Text(
             _availLabel,
             style: GoogleFonts.inter(
@@ -217,19 +232,18 @@ class CrewCard extends StatelessWidget {
         ],
       );
 
-  Widget _stat(IconData icon, String label) => Padding(
-        padding: const EdgeInsets.only(right: 14),
+  Widget _buildStat(BuildContext context, IconData icon, String label) =>
+      Padding(
+        padding: EdgeInsets.only(right: AppSpacing.md(context)),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 12, color: Colors.white38),
-            const SizedBox(width: 3),
+            Icon(icon,
+                size: AppSpacing.iconSm(context) - 2, color: Colors.white38),
+            SizedBox(width: AppSpacing.xxs(context) + 1),
             Text(
               label,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: Colors.white54,
-              ),
+              style: GoogleFonts.inter(fontSize: 12, color: Colors.white54),
             ),
           ],
         ),

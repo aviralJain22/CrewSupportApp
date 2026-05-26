@@ -1,3 +1,4 @@
+import 'package:crew_support/utils/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -68,6 +69,12 @@ class _AppTextFieldState extends State<AppTextField> {
     final borderColor =
         hasError ? const Color(0xFFB33A3A) : _focused ? _gold : _border;
 
+    final hPad = AppSpacing.md(context);
+    final vPad = AppSpacing.md(context);
+    final labelGap = AppSpacing.xs(context);
+    final errorGap = AppSpacing.xs(context);
+    final errorIconGap = AppSpacing.xxs(context) + 2;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -81,7 +88,7 @@ class _AppTextFieldState extends State<AppTextField> {
             letterSpacing: 1.2,
           ),
         ),
-        const SizedBox(height: 6),
+        SizedBox(height: labelGap),
         AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           decoration: BoxDecoration(
@@ -112,9 +119,9 @@ class _AppTextFieldState extends State<AppTextField> {
                 fontSize: 14,
                 color: Colors.white30,
               ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 14,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: hPad,
+                vertical: vPad,
               ),
               border: InputBorder.none,
               prefixIcon: widget.prefixIcon,
@@ -123,12 +130,13 @@ class _AppTextFieldState extends State<AppTextField> {
           ),
         ),
         if (hasError) ...[
-          const SizedBox(height: 5),
+          SizedBox(height: errorGap),
           Row(
             children: [
-              const Icon(Icons.error_outline,
-                  size: 13, color: Color(0xFFB33A3A)),
-              const SizedBox(width: 4),
+              Icon(Icons.error_outline,
+                  size: AppSpacing.iconSm(context) + 1,
+                  color: const Color(0xFFB33A3A)),
+              SizedBox(width: errorIconGap),
               Text(
                 widget.errorText!,
                 style: GoogleFonts.inter(

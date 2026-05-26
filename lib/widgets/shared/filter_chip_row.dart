@@ -1,3 +1,4 @@
+import 'package:crew_support/utils/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -24,21 +25,26 @@ class FilterChipRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hPad = AppSpacing.screenH(context);
+    final chipHPad = AppSpacing.md(context);
+    final chipVPad = AppSpacing.sm(context);
+    final chipGap = AppSpacing.sm(context);
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      padding: padding ?? const EdgeInsets.symmetric(horizontal: 20),
+      padding: padding ?? EdgeInsets.symmetric(horizontal: hPad),
       child: Row(
         children: items.map((item) {
           final isSelected = selected.contains(item);
           return Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: EdgeInsets.only(right: chipGap),
             child: GestureDetector(
               onTap: () => onTap(item),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 150),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
+                padding: EdgeInsets.symmetric(
+                  horizontal: chipHPad,
+                  vertical: chipVPad,
                 ),
                 decoration: BoxDecoration(
                   color: isSelected ? _gold : _surface,

@@ -12,6 +12,7 @@ import 'package:crew_support/features/profile/profile_owner_controller.dart';
 import 'package:crew_support/features/profile/profile_pilot_controller.dart';
 import 'package:crew_support/features/profile/profile_flight_attendant_controller.dart';
 import 'package:crew_support/utils/AppColor.dart';
+import 'package:crew_support/utils/app_spacing.dart';
 import 'package:crew_support/utils/membership_constants.dart';
 import 'package:crew_support/utils/sizer_v2_compat.dart';
 import 'package:flutter/material.dart';
@@ -121,8 +122,8 @@ class _DashboardScreenState extends State<DashboardScreen>
             children: [
               // ======= TOP HEADER =======
               Container(
-                width: 100.w,
-                padding: EdgeInsets.only(left: 3.w, right: 3.w, top: 1.5.h, bottom: 1.h),
+                width: double.infinity,
+                padding: EdgeInsets.fromLTRB(AppSpacing.screenH(context), AppSpacing.md(context), AppSpacing.screenH(context), AppSpacing.sm(context)),
                 color: AppColor.bgColor1,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -146,19 +147,19 @@ class _DashboardScreenState extends State<DashboardScreen>
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(40),
                                   child: SizedBox(
-                                    height: 60.sp,
-                                    width: 60.sp,
+                                    height: AppSpacing.avatarMd(context),
+                                    width: AppSpacing.avatarMd(context),
                                     child: url.isEmpty
                                         ? CircleAvatar(
                                             backgroundColor: AppColor.secondaryColor2,
-                                            child: Icon(Icons.account_circle, color: AppColor.bgColor1, size: 60),
+                                            child: Icon(Icons.account_circle, color: AppColor.bgColor1, size: AppSpacing.iconLg(context)),
                                           )
                                         : Image.network(
                                             url,
                                             fit: BoxFit.cover,
                                             errorBuilder: (_, err, st) => CircleAvatar(
                                               backgroundColor: AppColor.bgColor1,
-                                              child: Icon(Icons.account_circle, color: AppColor.secondaryColor1, size: 60),
+                                              child: Icon(Icons.account_circle, color: AppColor.secondaryColor1, size: AppSpacing.iconLg(context)),
                                             ),
                                           ),
                                   ),
@@ -191,7 +192,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                 prefixIcon: Icon(Icons.search, color: AppColor.secondaryColor1),
                                 hintText: 'Search',
                                 hintStyle: TextStyle(color: AppColor.secondaryColor1, fontSize: 9.spV2),
-                                contentPadding: const EdgeInsets.only(right: 10, top: 15),
+                                contentPadding: EdgeInsets.only(right: AppSpacing.sm(context), top: AppSpacing.md(context)),
                                 border: InputBorder.none,
                               ),
                             ),
@@ -209,8 +210,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                             return GestureDetector(
                               onTap: controller.onTopBarLocationWarningTap,
                               child: SizedBox(
-                                height: 24.sp,
-                                width: 24.sp,
+                                height: AppSpacing.avatarSm(context),
+                                width: AppSpacing.avatarSm(context),
                                 child: AnimatedBuilder(
                                   animation: _warningAnimationController,
                                   builder: (context, child) {
@@ -241,7 +242,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                   child: Icon(
                                     Icons.report_problem,
                                     color: _getWarningIconColor(),
-                                    size: 20.sp,
+                                    size: AppSpacing.iconMd(context),
                                   ),
                                 ),
                               ),
@@ -275,8 +276,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                               // });
                             },
                             child: SizedBox(
-                              height: 17.sp,
-                              width: 17.sp,
+                              height: AppSpacing.iconMd(context),
+                              width: AppSpacing.iconMd(context),
                               child: SvgPicture.asset(
                                 'assets/Heart Outline.svg',
                                 fit: BoxFit.fill,
@@ -289,20 +290,18 @@ class _DashboardScreenState extends State<DashboardScreen>
                         // Account / switch profile
                         GestureDetector(
                           onTap: () => controller.showLoginDialog(),
-                          child: Icon(Icons.account_circle, color: AppColor.secondaryColor1, size: 20.sp),
+                          child: Icon(Icons.account_circle, color: AppColor.secondaryColor1, size: AppSpacing.iconMd(context)),
                         ),
                       ],
                     ),
 
-                    const SizedBox(height: 10),
+                    SizedBox(height: AppSpacing.sm(context)),
 
                     // Right aligned links: Manage Availability (hidden for "1") + Help Center
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        SizedBox(
-                          height: 10.h,
-                          child: Obx(() {
+                        Obx(() {
                             //TODO: uncomment this line:
                             final showManageAvailability = controller.selectedProfileType.value != MembershipType.ownerOperator;
                             return Column(
@@ -314,7 +313,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                   child: GestureDetector(
                                     onTap: controller.onManageAvailabilityTap,
                                     child: Padding(
-                                      padding: EdgeInsets.only(right: 2.w, bottom: 1.5.h),
+                                      padding: EdgeInsets.only(right: AppSpacing.sm(context), bottom: AppSpacing.md(context)),
                                       child: Text(
                                         'Manage Availability',
                                         key: _manageAvailabilityKey,
@@ -331,7 +330,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                 GestureDetector(
                                   onTap: controller.onHelpCenterTap,
                                   child: Padding(
-                                    padding: EdgeInsets.only(right: 2.w, bottom: 1.5.h),
+                                    padding: EdgeInsets.only(right: AppSpacing.sm(context), bottom: AppSpacing.md(context)),
                                     child: Text(
                                       'Help Center',
                                       style: TextStyle(
@@ -345,8 +344,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                 ),
                               ],
                             );
-                          }),
-                        ),
+                        }),
                       ],
                     ),
                   ],
@@ -440,7 +438,6 @@ class _DashboardScreenState extends State<DashboardScreen>
                   final safeIndex = idx.clamp(0, labels.length - 1);
 
                   return Container(
-                    width: 100.w,
                     color: AppColor.bgColor1,
                     alignment: Alignment.center,
                     child: Text(
@@ -504,27 +501,27 @@ class _DashboardScreenState extends State<DashboardScreen>
           color: Colors.white,
           boxShadow: [BoxShadow(color: Color(0x1A000000), blurRadius: 12, offset: Offset(0, -2))],
         ),
-        padding: EdgeInsets.only(top: 10, bottom: bottomPadding + 10),
+        padding: EdgeInsets.only(top: AppSpacing.sm(context), bottom: bottomPadding + AppSpacing.sm(context)),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _navItem(label: 'Home', index: 0, activeTab: activeTab,
-              icon: _logoIcon(activeTab == 0),
+            _navItem(context, label: 'Home', index: 0, activeTab: activeTab,
+              icon: _logoIcon(context, activeTab == 0),
               onTap: () => controller.selectTab(0)),
-            _navItem(label: 'Network', index: 1, activeTab: activeTab,
+            _navItem(context, label: 'Network', index: 1, activeTab: activeTab,
               icon: Icon(activeTab == 1 ? Icons.people_alt : Icons.people_alt_outlined,
-                  size: 22, color: activeTab == 1 ? _navSelected : _navUnselected),
+                  size: AppSpacing.iconMd(context), color: activeTab == 1 ? _navSelected : _navUnselected),
               onTap: () => controller.selectTab(2)),
-            _navItem(label: 'Profile', index: 2, activeTab: activeTab,
-              icon: _avatarIcon(photoUrl, activeTab == 2),
+            _navItem(context, label: 'Profile', index: 2, activeTab: activeTab,
+              icon: _avatarIcon(context, photoUrl, activeTab == 2),
               onTap: () => controller.selectTab(1)),
-            _navItem(label: 'Alerts', index: 3, activeTab: activeTab,
+            _navItem(context, label: 'Alerts', index: 3, activeTab: activeTab,
               icon: Icon(activeTab == 3 ? Icons.notifications_rounded : Icons.notifications_outlined,
-                  size: 22, color: activeTab == 3 ? _navSelected : _navUnselected),
+                  size: AppSpacing.iconMd(context), color: activeTab == 3 ? _navSelected : _navUnselected),
               onTap: () => controller.selectTab(3)),
-            _navItem(label: 'Messages', index: 4, activeTab: activeTab,
+            _navItem(context, label: 'Messages', index: 4, activeTab: activeTab,
               icon: Icon(activeTab == 4 ? Icons.chat_bubble_rounded : Icons.chat_bubble_outline_rounded,
-                  size: 21, color: activeTab == 4 ? _navSelected : _navUnselected),
+                  size: AppSpacing.iconMd(context), color: activeTab == 4 ? _navSelected : _navUnselected),
               onTap: () => controller.selectTab(4)),
           ],
         ),
@@ -532,7 +529,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     });
   }
 
-  Widget _navItem({
+  Widget _navItem(BuildContext context, {
     required String label,
     required int index,
     required int activeTab,
@@ -544,12 +541,12 @@ class _DashboardScreenState extends State<DashboardScreen>
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: EdgeInsets.symmetric(horizontal: AppSpacing.md(context)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             icon,
-            const SizedBox(height: 4),
+            SizedBox(height: AppSpacing.xxs(context)),
             Text(label,
               style: TextStyle(
                 color: selected ? _navSelected : _navUnselected,
@@ -563,20 +560,23 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  Widget _logoIcon(bool selected) {
+  Widget _logoIcon(BuildContext context, bool selected) {
+    final size = AppSpacing.iconMd(context);
     return Image.asset(
       'assets/logoNewGolden.png',
-      width: 22,
-      height: 22,
+      width: size,
+      height: size,
       color: selected ? null : _navUnselected,
       colorBlendMode: selected ? null : BlendMode.srcIn,
     );
   }
 
-  Widget _avatarIcon(String photoUrl, bool selected) {
+  Widget _avatarIcon(BuildContext context, String photoUrl, bool selected) {
+    final size = AppSpacing.iconMd(context) + 2;
+    final iconSize = AppSpacing.iconSm(context);
     return Container(
-      width: 24,
-      height: 24,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
@@ -586,10 +586,10 @@ class _DashboardScreenState extends State<DashboardScreen>
       ),
       child: ClipOval(
         child: photoUrl.isEmpty
-            ? Icon(Icons.person, size: 16, color: selected ? _navSelected : _navUnselected)
+            ? Icon(Icons.person, size: iconSize, color: selected ? _navSelected : _navUnselected)
             : Image.network(photoUrl, fit: BoxFit.cover,
                 errorBuilder: (_, err, e) =>
-                    Icon(Icons.person, size: 16, color: selected ? _navSelected : _navUnselected)),
+                    Icon(Icons.person, size: iconSize, color: selected ? _navSelected : _navUnselected)),
       ),
     );
   }
@@ -606,7 +606,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     // Background container matches the rest of the dashboard
     Widget wrap(Widget child) {
       return Container(
-        width: 100.w,
         color: AppColor.bgColor1,
         alignment: Alignment.center,
         child: child,
@@ -645,7 +644,7 @@ class _DashboardScreenState extends State<DashboardScreen>
               color: AppColor.secondaryColor1,
               size: 50.spV2,
             ),
-            SizedBox(height: 2.h),
+            SizedBox(height: AppSpacing.lg(context)),
             Text('Loading...', style: TextStyle(color: AppColor.textColor1)),
           ],
         ),
@@ -666,12 +665,11 @@ class _DashboardScreenState extends State<DashboardScreen>
 
     // We have results – show them in a list, similar spacing to legacy
     return Container(
-      width: 100.w,
       color: AppColor.bgColor1,
       child: ListView.separated(
-        padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
+        padding: EdgeInsets.symmetric(horizontal: AppSpacing.xs(context), vertical: AppSpacing.sm(context)),
         itemCount: results.length,
-        separatorBuilder: (_, idx) => SizedBox(height: 0.h),
+        separatorBuilder: (_, idx) => const SizedBox.shrink(),
         itemBuilder: (context, index) {
           final row = results[index];
 
@@ -731,8 +729,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(30),
                       child: SizedBox(
-                        height: 60.0.sp,
-                        width: 60.0.sp,
+                        height: AppSpacing.avatarMd(context),
+                        width: AppSpacing.avatarMd(context),
                         child: photoPath.isEmpty
                             ? CircleAvatar(
                                 backgroundColor: AppColor.secondaryColor1,
@@ -776,7 +774,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       overflow: TextOverflow.ellipsis,
                     ),
                     if (!isOwnerOperatorRow && lastName.isNotEmpty) ...[
-                      SizedBox(width: 1.w),
+                      SizedBox(width: AppSpacing.xs(context)),
                       Text(
                         lastName,
                         textAlign: TextAlign.left,
@@ -794,7 +792,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       textAlign: TextAlign.left,
                       style: TextStyle(color: AppColor.secondaryColor2, fontSize: 10.spV2),
                     ),
-                    SizedBox(height: 1.h),
+                    SizedBox(height: AppSpacing.sm(context)),
                     Visibility(
                       visible: loggedInMembershipId == MembershipType.ownerOperator,
                       child: Text(
@@ -825,7 +823,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                     },
                     child: SvgPicture.asset(
                       'assets/message.svg',
-                      height: 3.0.h,
+                      height: AppSpacing.iconLg(context),
                       colorFilter: ColorFilter.mode(AppColor.secondaryColor2, BlendMode.srcIn),
                     ),
                   ),

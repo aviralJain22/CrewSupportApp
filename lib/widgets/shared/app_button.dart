@@ -1,3 +1,4 @@
+import 'package:crew_support/utils/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -13,7 +14,7 @@ class AppButton extends StatelessWidget {
     this.variant = AppButtonVariant.primary,
     this.state = AppButtonState.idle,
     this.width,
-    this.height = 50,
+    this.height,
     this.icon,
   });
 
@@ -22,7 +23,8 @@ class AppButton extends StatelessWidget {
   final AppButtonVariant variant;
   final AppButtonState state;
   final double? width;
-  final double height;
+  /// If null, uses AppSpacing.buttonH(context) — responsive to screen size.
+  final double? height;
   final IconData? icon;
 
   static const _gold = Color(0xFFD4AF37);
@@ -34,14 +36,18 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final h = height ?? AppSpacing.buttonH(context);
+    final spinnerSize = AppSpacing.iconLg(context);
+    final iconSize = AppSpacing.iconMd(context);
+
     return GestureDetector(
       onTap: _isDisabled ? null : onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: width,
-        height: height,
+        height: h,
         decoration: _decoration,
-        child: Center(child: _child),
+        child: Center(child: _buildChild(context, spinnerSize, iconSize)),
       ),
     );
   }
@@ -90,11 +96,11 @@ class AppButton extends StatelessWidget {
     }
   }
 
-  Widget get _child {
+  Widget _buildChild(BuildContext context, double spinnerSize, double iconSize) {
     if (state == AppButtonState.loading) {
       return SizedBox(
-        width: 20,
-        height: 20,
+        width: spinnerSize,
+        height: spinnerSize,
         child: CircularProgressIndicator(
           strokeWidth: 2,
           color: variant == AppButtonVariant.primary ? _darkBg : _gold,
@@ -106,7 +112,7 @@ class AppButton extends StatelessWidget {
       return Icon(
         Icons.check_rounded,
         color: variant == AppButtonVariant.primary ? _darkBg : Colors.white,
-        size: 22,
+        size: iconSize + 2,
       );
     }
 
@@ -122,8 +128,8 @@ class AppButton extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (icon != null) ...[
-          Icon(icon, color: textColor, size: 18),
-          const SizedBox(width: 8),
+          Icon(icon, color: textColor, size: iconSize),
+          SizedBox(width: AppSpacing.sm(context)),
         ],
         Text(
           label,

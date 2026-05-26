@@ -1,3 +1,4 @@
+import 'package:crew_support/utils/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -29,6 +30,14 @@ class AppBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final navH = AppSpacing.bottomNavH(context);
+    final iconSize = AppSpacing.iconMd(context) + 2;
+    final badgeSize = AppSpacing.iconSm(context) + 2;
+    final iconGap = AppSpacing.xxs(context) + 2;
+    final selHPad = AppSpacing.md(context);
+    final unselHPad = AppSpacing.sm(context);
+    final vPad = AppSpacing.xxs(context) + 3;
+
     return Container(
       decoration: const BoxDecoration(
         color: _bg,
@@ -44,7 +53,7 @@ class AppBottomNav extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 62,
+          height: navH,
           child: Row(
             children: List.generate(_items.length, (i) {
               final item = _items[i];
@@ -61,15 +70,21 @@ class AppBottomNav extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildIcon(item, selected, badge),
-                      const SizedBox(height: 4),
+                      _buildIcon(
+                        item, selected, badge,
+                        iconSize: iconSize,
+                        badgeSize: badgeSize,
+                        selHPad: selHPad,
+                        unselHPad: unselHPad,
+                        vPad: vPad,
+                      ),
+                      SizedBox(height: iconGap),
                       AnimatedDefaultTextStyle(
                         duration: const Duration(milliseconds: 180),
                         style: GoogleFonts.inter(
                           fontSize: 10,
-                          fontWeight: selected
-                              ? FontWeight.w600
-                              : FontWeight.w400,
+                          fontWeight:
+                              selected ? FontWeight.w600 : FontWeight.w400,
                           color: selected ? _gold : Colors.white38,
                         ),
                         child: Text(item.label),
@@ -85,24 +100,35 @@ class AppBottomNav extends StatelessWidget {
     );
   }
 
-  Widget _buildIcon(_NavItem item, bool selected, int badge) {
+  Widget _buildIcon(
+    _NavItem item,
+    bool selected,
+    int badge, {
+    required double iconSize,
+    required double badgeSize,
+    required double selHPad,
+    required double unselHPad,
+    required double vPad,
+  }) {
     return Stack(
       clipBehavior: Clip.none,
       children: [
         AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           padding: EdgeInsets.symmetric(
-            horizontal: selected ? 14 : 8,
-            vertical: 5,
+            horizontal: selected ? selHPad : unselHPad,
+            vertical: vPad,
           ),
           decoration: BoxDecoration(
-            color: selected ? _gold.withValues(alpha: 0.14) : Colors.transparent,
+            color: selected
+                ? _gold.withValues(alpha: 0.14)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Icon(
             selected ? item.activeIcon : item.icon,
             color: selected ? _gold : Colors.white38,
-            size: 22,
+            size: iconSize,
           ),
         ),
         if (badge > 0)
@@ -110,8 +136,8 @@ class AppBottomNav extends StatelessWidget {
             top: -2,
             right: -2,
             child: Container(
-              width: 16,
-              height: 16,
+              width: badgeSize,
+              height: badgeSize,
               decoration: const BoxDecoration(
                 color: _gold,
                 shape: BoxShape.circle,

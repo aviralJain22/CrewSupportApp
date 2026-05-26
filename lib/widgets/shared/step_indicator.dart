@@ -1,3 +1,4 @@
+import 'package:crew_support/utils/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -24,12 +25,11 @@ class StepIndicator extends StatelessWidget {
         Row(
           children: List.generate(totalSteps * 2 - 1, (i) {
             if (i.isOdd) return _connector(i ~/ 2 + 1);
-            final step = i ~/ 2 + 1;
-            return _stepDot(step);
+            return _stepDot(context, i ~/ 2 + 1);
           }),
         ),
         if (labels != null) ...[
-          const SizedBox(height: 8),
+          SizedBox(height: AppSpacing.sm(context)),
           Row(
             children: List.generate(totalSteps, (i) {
               final step = i + 1;
@@ -41,8 +41,7 @@ class StepIndicator extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: GoogleFonts.inter(
                     fontSize: 10,
-                    fontWeight:
-                        active ? FontWeight.w600 : FontWeight.w400,
+                    fontWeight: active ? FontWeight.w600 : FontWeight.w400,
                     color: active
                         ? _gold
                         : done
@@ -59,14 +58,17 @@ class StepIndicator extends StatelessWidget {
     );
   }
 
-  Widget _stepDot(int step) {
+  Widget _stepDot(BuildContext context, int step) {
     final active = step == currentStep;
     final done = step < currentStep;
 
+    final activeDotSize = AppSpacing.avatarSm(context);
+    final inactiveDotSize = activeDotSize - 8;
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      width: active ? 32 : 24,
-      height: active ? 32 : 24,
+      width: active ? activeDotSize : inactiveDotSize,
+      height: active ? activeDotSize : inactiveDotSize,
       decoration: BoxDecoration(
         color: done
             ? _done
@@ -90,8 +92,8 @@ class StepIndicator extends StatelessWidget {
       ),
       child: Center(
         child: done
-            ? const Icon(Icons.check_rounded,
-                size: 13, color: Colors.white)
+            ? Icon(Icons.check_rounded,
+                size: inactiveDotSize * 0.54, color: Colors.white)
             : Text(
                 '$step',
                 style: GoogleFonts.inter(

@@ -1,3 +1,4 @@
+import 'package:crew_support/utils/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -40,25 +41,36 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
   static const _bg = Color(0xFF0C0A08);
   static const _cardBg = Color(0xFF181410);
 
+  /// Fixed at the standard medium-tier value.
+  /// The actual container height inside build() is driven by AppSpacing.headerH(context).
   @override
-  Size get preferredSize => const Size.fromHeight(64);
+  Size get preferredSize => const Size.fromHeight(62);
 
   @override
   Widget build(BuildContext context) {
+    final h = AppSpacing.headerH(context);
+    final hPad = AppSpacing.screenH(context);
+    final iconBtn = AppSpacing.avatarSm(context) + 2;
+    final iconInner = AppSpacing.iconMd(context);
+    final badgeSize = AppSpacing.iconSm(context) + 2;
+    final btnGap = AppSpacing.sm(context);
+    final backGap = AppSpacing.md(context);
+
     return Container(
-      height: preferredSize.height,
+      height: h,
       color: _bg,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: hPad),
       child: SafeArea(
         bottom: false,
         child: variant == AppHeaderVariant.greeting
-            ? _buildGreeting()
-            : _buildTitle(context),
+            ? _buildGreeting(context, iconBtn, iconInner, badgeSize, btnGap)
+            : _buildTitle(context, iconBtn, iconInner, backGap),
       ),
     );
   }
 
-  Widget _buildGreeting() {
+  Widget _buildGreeting(BuildContext context, double iconBtn, double iconInner,
+      double badgeSize, double btnGap) {
     final hour = DateTime.now().hour;
     final greeting = hour < 12
         ? 'Good morning'
@@ -75,10 +87,7 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
             children: [
               Text(
                 greeting,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: Colors.white54,
-                ),
+                style: GoogleFonts.inter(fontSize: 12, color: Colors.white54),
               ),
               Text(
                 name ?? 'Aviator',
@@ -91,36 +100,37 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
             ],
           ),
         ),
-        _bellButton,
-        const SizedBox(width: 10),
-        _avatarButton,
+        _bellButton(iconBtn, iconInner, badgeSize),
+        SizedBox(width: btnGap),
+        _avatarButton(iconBtn),
       ],
     );
   }
 
-  Widget _buildTitle(BuildContext context) {
+  Widget _buildTitle(BuildContext context, double iconBtn, double iconInner,
+      double backGap) {
     return Row(
       children: [
         GestureDetector(
           onTap: onBack ?? () => Navigator.of(context).maybePop(),
           child: Container(
-            width: 36,
-            height: 36,
+            width: iconBtn,
+            height: iconBtn,
             decoration: BoxDecoration(
               color: _cardBg,
               shape: BoxShape.circle,
               border: Border.all(color: const Color(0xFF2A2520), width: 1),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.arrow_back_ios_new_rounded,
               color: Colors.white,
-              size: 16,
+              size: iconInner - 4,
             ),
           ),
         ),
-        const SizedBox(width: 14),
+        SizedBox(width: backGap),
         Text(
-          title ?? '',
+          title ?? "",
           style: GoogleFonts.cinzel(
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -131,25 +141,24 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  Widget get _bellButton {
+  Widget _bellButton(double size, double iconInner, double badgeSize) {
     return GestureDetector(
       onTap: onNotificationTap,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           Container(
-            width: 38,
-            height: 38,
+            width: size,
+            height: size,
             decoration: BoxDecoration(
               color: _cardBg,
               shape: BoxShape.circle,
-              border:
-                  Border.all(color: const Color(0xFF2A2520), width: 1),
+              border: Border.all(color: const Color(0xFF2A2520), width: 1),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.notifications_none_rounded,
               color: Colors.white70,
-              size: 20,
+              size: iconInner,
             ),
           ),
           if (unreadCount > 0)
@@ -157,8 +166,8 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
               top: -2,
               right: -2,
               child: Container(
-                width: 16,
-                height: 16,
+                width: badgeSize,
+                height: badgeSize,
                 decoration: const BoxDecoration(
                   color: _gold,
                   shape: BoxShape.circle,
@@ -180,12 +189,12 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  Widget get _avatarButton {
+  Widget _avatarButton(double size) {
     return GestureDetector(
       onTap: onAvatarTap,
       child: Container(
-        width: 38,
-        height: 38,
+        width: size,
+        height: size,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(color: _gold, width: 1.5),

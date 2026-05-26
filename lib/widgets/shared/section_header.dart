@@ -1,3 +1,4 @@
+import 'package:crew_support/utils/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -41,11 +42,11 @@ class SectionHeader extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(width: 2),
-                const Icon(
+                SizedBox(width: AppSpacing.xxs(context)),
+                Icon(
                   Icons.arrow_forward_ios_rounded,
-                  size: 10,
-                  color: Color(0xFFD4AF37),
+                  size: AppSpacing.iconSm(context) - 3,
+                  color: const Color(0xFFD4AF37),
                 ),
               ],
             ),

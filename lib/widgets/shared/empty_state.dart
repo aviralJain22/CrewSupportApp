@@ -1,3 +1,4 @@
+import 'package:crew_support/utils/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_button.dart';
@@ -20,15 +21,20 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final iconContainerSize = AppSpacing.avatarLg(context);
+    final iconSize = iconContainerSize * 0.42;
+    final hPad = AppSpacing.screenH(context) + 16;
+    final vPad = AppSpacing.xxl(context);
+
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 48),
+        padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 72,
-              height: 72,
+              width: iconContainerSize,
+              height: iconContainerSize,
               decoration: BoxDecoration(
                 color: const Color(0xFF1E1A14),
                 shape: BoxShape.circle,
@@ -37,9 +43,10 @@ class EmptyState extends StatelessWidget {
                   width: 1,
                 ),
               ),
-              child: Icon(icon, color: const Color(0xFFD4AF37), size: 30),
+              child: Icon(icon,
+                  color: const Color(0xFFD4AF37), size: iconSize),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: AppSpacing.xl(context)),
             Text(
               title,
               textAlign: TextAlign.center,
@@ -49,7 +56,7 @@ class EmptyState extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: AppSpacing.sm(context)),
             Text(
               subtitle,
               textAlign: TextAlign.center,
@@ -60,7 +67,7 @@ class EmptyState extends StatelessWidget {
               ),
             ),
             if (ctaLabel != null && onCta != null) ...[
-              const SizedBox(height: 28),
+              SizedBox(height: AppSpacing.xxl(context)),
               AppButton(
                 label: ctaLabel!,
                 onTap: onCta,

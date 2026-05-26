@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:crew_support/utils/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -15,10 +16,10 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
-  static const _bg       = Color(0xFF0C0A06);
-  static const _gold     = Color(0xFFD4AF37);
-  static const _cardBg   = Color(0xFF181410);
-  static const _border   = Color(0xFF2A2520);
+  static const _bg     = Color(0xFF0C0A06);
+  static const _gold   = Color(0xFFD4AF37);
+  static const _cardBg = Color(0xFF181410);
+  static const _border = Color(0xFF2A2520);
 
   static const _keyRememberMe    = 'cs_remember_me';
   static const _keySavedEmail    = 'cs_saved_email';
@@ -121,37 +122,40 @@ class _LoginScreenState extends State<LoginScreen>
 
   @override
   Widget build(BuildContext context) {
-    if (_autoLoggingIn) return _buildAutoLogin();
+    if (_autoLoggingIn) return _buildAutoLogin(context);
+
+    final hPad   = AppSpacing.screenH(context);
+    final topGap = AppSpacing.xxxl(context);
 
     return Scaffold(
       backgroundColor: _bg,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: EdgeInsets.symmetric(horizontal: hPad),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 44),
-              _buildLogo(),
-              const SizedBox(height: 36),
-              _buildMembershipDropdown(),
-              const SizedBox(height: 14),
-              _buildEmailField(),
-              const SizedBox(height: 14),
-              _buildPasswordField(),
-              const SizedBox(height: 10),
+              SizedBox(height: topGap),
+              _buildLogo(context),
+              SizedBox(height: AppSpacing.xxl(context)),
+              _buildMembershipDropdown(context),
+              SizedBox(height: AppSpacing.md(context)),
+              _buildEmailField(context),
+              SizedBox(height: AppSpacing.md(context)),
+              _buildPasswordField(context),
+              SizedBox(height: AppSpacing.sm(context) + 2),
               _buildForgotRow(),
-              const SizedBox(height: 14),
-              _buildRememberMeCard(),
-              const SizedBox(height: 24),
-              _buildSignInBtn(),
-              const SizedBox(height: 20),
-              _buildDivider(),
-              const SizedBox(height: 20),
-              _buildJoinNowBtn(),
-              const SizedBox(height: 28),
-              _buildHelpCenter(),
-              const SizedBox(height: 24),
+              SizedBox(height: AppSpacing.md(context)),
+              _buildRememberMeCard(context),
+              SizedBox(height: AppSpacing.xl(context)),
+              _buildSignInBtn(context),
+              SizedBox(height: AppSpacing.lg(context)),
+              _buildDivider(context),
+              SizedBox(height: AppSpacing.lg(context)),
+              _buildJoinNowBtn(context),
+              SizedBox(height: AppSpacing.xxl(context)),
+              _buildHelpCenter(context),
+              SizedBox(height: AppSpacing.xl(context)),
             ],
           ),
         ),
@@ -161,22 +165,24 @@ class _LoginScreenState extends State<LoginScreen>
 
   // ─── Logo ─────────────────────────────────────────────────────────────────
 
-  Widget _buildLogo() {
+  Widget _buildLogo(BuildContext context) {
+    final logoSize = AppSpacing.avatarLg(context) + 10;
+    final logoIconSize = logoSize * 0.51;
+
     return Column(
       children: [
         Container(
-          width: 82, height: 82,
+          width: logoSize,
+          height: logoSize,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                const Color(0xFF2C2200),
-                const Color(0xFF1A1500),
-              ],
+              colors: [Color(0xFF2C2200), Color(0xFF1A1500)],
             ),
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: _gold.withValues(alpha: 0.65), width: 1.8),
+            borderRadius: BorderRadius.circular(logoSize * 0.27),
+            border: Border.all(
+                color: _gold.withValues(alpha: 0.65), width: 1.8),
             boxShadow: [
               BoxShadow(
                 color: _gold.withValues(alpha: 0.18),
@@ -185,9 +191,9 @@ class _LoginScreenState extends State<LoginScreen>
               ),
             ],
           ),
-          child: const Icon(Icons.flight_rounded, color: _gold, size: 42),
+          child: Icon(Icons.flight_rounded, color: _gold, size: logoIconSize),
         ),
-        const SizedBox(height: 14),
+        SizedBox(height: AppSpacing.md(context)),
         Text(
           'CREW',
           style: GoogleFonts.cinzel(
@@ -197,7 +203,7 @@ class _LoginScreenState extends State<LoginScreen>
             letterSpacing: 2,
           ),
         ),
-        const SizedBox(height: 2),
+        SizedBox(height: AppSpacing.xxs(context)),
         Text(
           'SUPPORT',
           style: GoogleFonts.inter(
@@ -213,19 +219,24 @@ class _LoginScreenState extends State<LoginScreen>
 
   // ─── Membership dropdown ──────────────────────────────────────────────────
 
-  Widget _buildMembershipDropdown() {
+  Widget _buildMembershipDropdown(BuildContext context) {
+    final fieldH = AppSpacing.fieldH(context);
+    final hPad   = AppSpacing.md(context);
+    final iconGap = AppSpacing.sm(context);
+    final iconSize = AppSpacing.iconMd(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _label('Membership Type'),
-        const SizedBox(height: 8),
+        SizedBox(height: AppSpacing.sm(context)),
         _fieldShell(
+          height: fieldH,
           child: Row(
             children: [
-              const SizedBox(width: 14),
-              const Icon(Icons.person_outline_rounded,
-                  color: _gold, size: 20),
-              const SizedBox(width: 10),
+              SizedBox(width: hPad),
+              Icon(Icons.person_outline_rounded, color: _gold, size: iconSize),
+              SizedBox(width: iconGap),
               Expanded(
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
@@ -237,8 +248,8 @@ class _LoginScreenState extends State<LoginScreen>
                     ),
                     isExpanded: true,
                     dropdownColor: const Color(0xFF1E1B17),
-                    icon: const Icon(Icons.keyboard_arrow_down_rounded,
-                        color: Colors.white38, size: 20),
+                    icon: Icon(Icons.keyboard_arrow_down_rounded,
+                        color: Colors.white38, size: iconSize),
                     style: GoogleFonts.inter(
                         fontSize: 14, color: Colors.white),
                     items: _membershipTypes
@@ -247,8 +258,7 @@ class _LoginScreenState extends State<LoginScreen>
                               child: Text(t),
                             ))
                         .toList(),
-                    onChanged: (v) =>
-                        setState(() => _membershipType = v),
+                    onChanged: (v) => setState(() => _membershipType = v),
                   ),
                 ),
               ),
@@ -261,26 +271,30 @@ class _LoginScreenState extends State<LoginScreen>
 
   // ─── Email / Phone ────────────────────────────────────────────────────────
 
-  Widget _buildEmailField() {
+  Widget _buildEmailField(BuildContext context) {
+    final fieldH   = AppSpacing.fieldH(context);
+    final hPad     = AppSpacing.md(context);
+    final iconGap  = AppSpacing.sm(context);
+    final iconSize = AppSpacing.iconMd(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _label('Email / Phone'),
-        const SizedBox(height: 8),
+        SizedBox(height: AppSpacing.sm(context)),
         _fieldShell(
+          height: fieldH,
           child: Row(
             children: [
-              const SizedBox(width: 14),
-              const Icon(Icons.mail_outline_rounded,
-                  color: _gold, size: 20),
-              const SizedBox(width: 10),
+              SizedBox(width: hPad),
+              Icon(Icons.mail_outline_rounded, color: _gold, size: iconSize),
+              SizedBox(width: iconGap),
               Expanded(
                 child: TextField(
                   controller: _emailCtrl,
                   keyboardType: TextInputType.emailAddress,
                   onChanged: (_) => setState(() {}),
-                  style: GoogleFonts.inter(
-                      fontSize: 14, color: Colors.white),
+                  style: GoogleFonts.inter(fontSize: 14, color: Colors.white),
                   cursorColor: _gold,
                   decoration: InputDecoration(
                     border: InputBorder.none,
@@ -292,7 +306,7 @@ class _LoginScreenState extends State<LoginScreen>
                   ),
                 ),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: hPad),
             ],
           ),
         ),
@@ -302,26 +316,30 @@ class _LoginScreenState extends State<LoginScreen>
 
   // ─── Password ─────────────────────────────────────────────────────────────
 
-  Widget _buildPasswordField() {
+  Widget _buildPasswordField(BuildContext context) {
+    final fieldH   = AppSpacing.fieldH(context);
+    final hPad     = AppSpacing.md(context);
+    final iconGap  = AppSpacing.sm(context);
+    final iconSize = AppSpacing.iconMd(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _label('Password'),
-        const SizedBox(height: 8),
+        SizedBox(height: AppSpacing.sm(context)),
         _fieldShell(
+          height: fieldH,
           child: Row(
             children: [
-              const SizedBox(width: 14),
-              const Icon(Icons.lock_outline_rounded,
-                  color: _gold, size: 20),
-              const SizedBox(width: 10),
+              SizedBox(width: hPad),
+              Icon(Icons.lock_outline_rounded, color: _gold, size: iconSize),
+              SizedBox(width: iconGap),
               Expanded(
                 child: TextField(
                   controller: _passwordCtrl,
                   obscureText: !_passwordVis,
                   onChanged: (_) => setState(() {}),
-                  style: GoogleFonts.inter(
-                      fontSize: 14, color: Colors.white),
+                  style: GoogleFonts.inter(fontSize: 14, color: Colors.white),
                   cursorColor: _gold,
                   decoration: InputDecoration(
                     border: InputBorder.none,
@@ -334,15 +352,14 @@ class _LoginScreenState extends State<LoginScreen>
                 ),
               ),
               GestureDetector(
-                onTap: () =>
-                    setState(() => _passwordVis = !_passwordVis),
+                onTap: () => setState(() => _passwordVis = !_passwordVis),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  padding: EdgeInsets.symmetric(horizontal: hPad),
                   child: Icon(
                     _passwordVis
                         ? Icons.visibility_outlined
                         : Icons.visibility_off_outlined,
-                    size: 20,
+                    size: iconSize,
                     color: Colors.white38,
                   ),
                 ),
@@ -375,7 +392,14 @@ class _LoginScreenState extends State<LoginScreen>
 
   // ─── Remember Me card ─────────────────────────────────────────────────────
 
-  Widget _buildRememberMeCard() {
+  Widget _buildRememberMeCard(BuildContext context) {
+    final hPad       = AppSpacing.md(context);
+    final vPad       = AppSpacing.sm(context) + 2;
+    final checkSize  = AppSpacing.iconMd(context) + 2;
+    final checkGap   = AppSpacing.sm(context) + 2;
+    final shieldGap  = AppSpacing.sm(context);
+    final shieldSize = AppSpacing.iconMd(context) + 2;
+
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
@@ -383,24 +407,20 @@ class _LoginScreenState extends State<LoginScreen>
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+        padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
         decoration: BoxDecoration(
-          color: _rememberMe
-              ? _gold.withValues(alpha: 0.06)
-              : _cardBg,
+          color: _rememberMe ? _gold.withValues(alpha: 0.06) : _cardBg,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: _rememberMe
-                ? _gold.withValues(alpha: 0.5)
-                : _border,
+            color: _rememberMe ? _gold.withValues(alpha: 0.5) : _border,
           ),
         ),
         child: Row(
           children: [
-            // Checkbox
             AnimatedContainer(
               duration: const Duration(milliseconds: 180),
-              width: 22, height: 22,
+              width: checkSize,
+              height: checkSize,
               decoration: BoxDecoration(
                 color: _rememberMe
                     ? _gold.withValues(alpha: 0.15)
@@ -412,12 +432,11 @@ class _LoginScreenState extends State<LoginScreen>
                 ),
               ),
               child: _rememberMe
-                  ? const Icon(Icons.check_rounded,
-                      size: 14, color: _gold)
+                  ? Icon(Icons.check_rounded,
+                      size: checkSize * 0.6, color: _gold)
                   : null,
             ),
-            const SizedBox(width: 12),
-            // Text
+            SizedBox(width: checkGap),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -430,7 +449,7 @@ class _LoginScreenState extends State<LoginScreen>
                       color: _rememberMe ? Colors.white : Colors.white70,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: AppSpacing.xxs(context)),
                   Text(
                     'Save my login info for faster access',
                     style: GoogleFonts.inter(
@@ -441,14 +460,11 @@ class _LoginScreenState extends State<LoginScreen>
                 ],
               ),
             ),
-            const SizedBox(width: 10),
-            // Shield icon
+            SizedBox(width: shieldGap),
             Icon(
-              _rememberMe
-                  ? Icons.shield_rounded
-                  : Icons.shield_outlined,
+              _rememberMe ? Icons.shield_rounded : Icons.shield_outlined,
               color: _rememberMe ? _gold : Colors.white24,
-              size: 22,
+              size: shieldSize,
             ),
           ],
         ),
@@ -458,12 +474,15 @@ class _LoginScreenState extends State<LoginScreen>
 
   // ─── Sign In button ───────────────────────────────────────────────────────
 
-  Widget _buildSignInBtn() {
+  Widget _buildSignInBtn(BuildContext context) {
+    final btnH       = AppSpacing.buttonH(context);
+    final spinnerSz  = AppSpacing.iconLg(context);
+
     return GestureDetector(
       onTap: _canSubmit && !_loading ? _signIn : null,
       child: Container(
         width: double.infinity,
-        height: 56,
+        height: btnH,
         decoration: BoxDecoration(
           gradient: _canSubmit
               ? const LinearGradient(
@@ -483,20 +502,17 @@ class _LoginScreenState extends State<LoginScreen>
                   ),
                 ]
               : null,
-          border: _canSubmit
-              ? null
-              : Border.all(color: _border),
+          border: _canSubmit ? null : Border.all(color: _border),
         ),
         child: Center(
           child: _loading
               ? SizedBox(
-                  width: 22, height: 22,
+                  width: spinnerSz,
+                  height: spinnerSz,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      _canSubmit
-                          ? const Color(0xFF0C0A08)
-                          : Colors.white24,
+                      _canSubmit ? const Color(0xFF0C0A08) : Colors.white24,
                     ),
                   ),
                 )
@@ -505,9 +521,8 @@ class _LoginScreenState extends State<LoginScreen>
                   style: GoogleFonts.inter(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: _canSubmit
-                        ? const Color(0xFF0C0A08)
-                        : Colors.white24,
+                    color:
+                        _canSubmit ? const Color(0xFF0C0A08) : Colors.white24,
                   ),
                 ),
         ),
@@ -517,12 +532,12 @@ class _LoginScreenState extends State<LoginScreen>
 
   // ─── Divider ──────────────────────────────────────────────────────────────
 
-  Widget _buildDivider() {
+  Widget _buildDivider(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: Divider(color: _border)),
+        const Expanded(child: Divider(color: _border)),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14),
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.md(context)),
           child: Text(
             'OR',
             style: GoogleFonts.inter(
@@ -533,23 +548,24 @@ class _LoginScreenState extends State<LoginScreen>
             ),
           ),
         ),
-        Expanded(child: Divider(color: _border)),
+        const Expanded(child: Divider(color: _border)),
       ],
     );
   }
 
   // ─── Join Now ─────────────────────────────────────────────────────────────
 
-  Widget _buildJoinNowBtn() {
+  Widget _buildJoinNowBtn(BuildContext context) {
     return GestureDetector(
       onTap: () => Get.toNamed(AppRoutes.signupNew),
       child: Container(
         width: double.infinity,
-        height: 56,
+        height: AppSpacing.buttonH(context),
         decoration: BoxDecoration(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: _gold.withValues(alpha: 0.7), width: 1.5),
+          border:
+              Border.all(color: _gold.withValues(alpha: 0.7), width: 1.5),
         ),
         child: Center(
           child: Text(
@@ -567,14 +583,15 @@ class _LoginScreenState extends State<LoginScreen>
 
   // ─── Help Center ──────────────────────────────────────────────────────────
 
-  Widget _buildHelpCenter() {
+  Widget _buildHelpCenter(BuildContext context) {
     return GestureDetector(
       onTap: () {},
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.headset_mic_outlined, color: _gold, size: 18),
-          const SizedBox(width: 8),
+          Icon(Icons.headset_mic_outlined,
+              color: _gold, size: AppSpacing.iconMd(context)),
+          SizedBox(width: AppSpacing.sm(context)),
           Text(
             'Help Center',
             style: GoogleFonts.inter(
@@ -590,7 +607,11 @@ class _LoginScreenState extends State<LoginScreen>
 
   // ─── Auto-login shimmer ───────────────────────────────────────────────────
 
-  Widget _buildAutoLogin() {
+  Widget _buildAutoLogin(BuildContext context) {
+    final circleSize = AppSpacing.avatarLg(context);
+    final iconSize   = circleSize * 0.47;
+    final barWidth   = AppSpacing.xxxl(context) + 20;
+
     return Scaffold(
       backgroundColor: _bg,
       body: Center(
@@ -598,17 +619,18 @@ class _LoginScreenState extends State<LoginScreen>
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 72, height: 72,
+              width: circleSize,
+              height: circleSize,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [const Color(0xFF2C2200), const Color(0xFF1A1500)],
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF2C2200), Color(0xFF1A1500)],
                 ),
                 shape: BoxShape.circle,
                 border: Border.all(color: _gold.withValues(alpha: 0.5)),
               ),
-              child: const Icon(Icons.flight_rounded, color: _gold, size: 34),
+              child: Icon(Icons.flight_rounded, color: _gold, size: iconSize),
             ),
-            const SizedBox(height: 22),
+            SizedBox(height: AppSpacing.xl(context)),
             Text(
               'CREW SUPPORT',
               style: GoogleFonts.cinzel(
@@ -618,16 +640,17 @@ class _LoginScreenState extends State<LoginScreen>
                 letterSpacing: 2,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: AppSpacing.sm(context)),
             Text(
               'Signing you in…',
               style: GoogleFonts.inter(fontSize: 14, color: Colors.white38),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: AppSpacing.xxl(context)),
             AnimatedBuilder(
               animation: _shimmerCtrl,
               builder: (_, _) => Container(
-                width: 120, height: 3,
+                width: barWidth,
+                height: 3,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(2),
                   gradient: LinearGradient(
@@ -662,8 +685,9 @@ class _LoginScreenState extends State<LoginScreen>
         ),
       );
 
-  Widget _fieldShell({required Widget child}) => Container(
-        height: 56,
+  Widget _fieldShell({required Widget child, required double height}) =>
+      Container(
+        height: height,
         decoration: BoxDecoration(
           color: _cardBg,
           borderRadius: BorderRadius.circular(12),

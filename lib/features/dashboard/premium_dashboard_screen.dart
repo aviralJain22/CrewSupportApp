@@ -306,7 +306,7 @@ class _PremiumDashboardScreenState extends State<PremiumDashboardScreen> {
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        '$name ✈',
+                        name,
                         style: GoogleFonts.cinzel(
                           fontSize: 26,
                           fontWeight: FontWeight.w700,
@@ -444,7 +444,7 @@ class _PremiumDashboardScreenState extends State<PremiumDashboardScreen> {
   Widget _buildSearchAndFilter() {
     final isFiltered = _activeFilter != 'All';
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 0),
       child: Row(
         children: [
           Expanded(

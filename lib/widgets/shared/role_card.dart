@@ -1,3 +1,4 @@
+import 'package:crew_support/utils/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -23,15 +24,21 @@ class RoleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cardPad = AppSpacing.cardPadding(context);
+    final iconContainerSize = AppSpacing.avatarSm(context) + 10;
+    final iconSize = AppSpacing.iconMd(context);
+    final iconGap = AppSpacing.md(context);
+    final titleGap = AppSpacing.xxs(context) + 1;
+    final checkboxGap = AppSpacing.sm(context) + 2;
+    final checkboxSize = AppSpacing.iconMd(context) + 2;
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(cardPad),
         decoration: BoxDecoration(
-          color: selected
-              ? _gold.withValues(alpha: 0.08)
-              : _cardBg,
+          color: selected ? _gold.withValues(alpha: 0.08) : _cardBg,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: selected ? _gold : _border,
@@ -41,8 +48,8 @@ class RoleCard extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 44,
-              height: 44,
+              width: iconContainerSize,
+              height: iconContainerSize,
               decoration: BoxDecoration(
                 color: selected
                     ? _gold.withValues(alpha: 0.15)
@@ -52,10 +59,10 @@ class RoleCard extends StatelessWidget {
               child: Icon(
                 icon,
                 color: selected ? _gold : Colors.white54,
-                size: 22,
+                size: iconSize,
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: iconGap),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,10 +72,10 @@ class RoleCard extends StatelessWidget {
                     style: GoogleFonts.inter(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: selected ? Colors.white : Colors.white,
+                      color: Colors.white,
                     ),
                   ),
-                  const SizedBox(height: 3),
+                  SizedBox(height: titleGap),
                   Text(
                     description,
                     style: GoogleFonts.inter(
@@ -80,11 +87,11 @@ class RoleCard extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: checkboxGap),
             AnimatedContainer(
               duration: const Duration(milliseconds: 150),
-              width: 22,
-              height: 22,
+              width: checkboxSize,
+              height: checkboxSize,
               decoration: BoxDecoration(
                 color: selected ? _gold : Colors.transparent,
                 borderRadius: BorderRadius.circular(5),
@@ -94,8 +101,9 @@ class RoleCard extends StatelessWidget {
                 ),
               ),
               child: selected
-                  ? const Icon(Icons.check_rounded,
-                      size: 14, color: Color(0xFF0C0A08))
+                  ? Icon(Icons.check_rounded,
+                      size: checkboxSize * 0.6,
+                      color: const Color(0xFF0C0A08))
                   : null,
             ),
           ],
