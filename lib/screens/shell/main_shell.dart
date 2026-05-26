@@ -17,13 +17,16 @@ class MainShellScreen extends StatefulWidget {
 class _MainShellScreenState extends State<MainShellScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = const [
-    PremiumDashboardScreen(),
-    ConnectionsScreen(),
-    ProfileTab(),
-    NotificationScreen(),
-    MessageListScreen(),
-  ];
+  Widget _buildPage(int index) {
+    return switch (index) {
+      0 => const PremiumDashboardScreen(),
+      1 => const ConnectionsScreen(),
+      2 => const ProfileTab(),
+      3 => const NotificationScreen(),
+      4 => const MessageListScreen(),
+      _ => const PremiumDashboardScreen(),
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,10 +36,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
         final unreadMessages = convos.fold(0, (sum, c) => sum + c.unread);
         return Scaffold(
           backgroundColor: const Color(0xFF0C0A08),
-          body: IndexedStack(
-            index: _currentIndex,
-            children: _pages,
-          ),
+          body: _buildPage(_currentIndex),
           bottomNavigationBar: AppBottomNav(
             currentIndex: _currentIndex,
             onTap: (i) => setState(() => _currentIndex = i),
